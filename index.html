@@ -552,12 +552,12 @@ h1{background:linear-gradient(100deg,#0e1a33 15%,#1d4ed8 70%,#0b86c9);-webkit-ba
 </div>
 <div id="res" class="hid"></div>
 
-<section class="gr" id="guia-rapido" aria-labelledby="gr-t">
+<section class="gr hid" id="guia-rapido" aria-labelledby="gr-t">
 <div class="card gr-card rv">
 <h2 id="gr-t">Guia rápido de BTUs</h2>
 <p class="gr-lead">Referência inicial para dimensionamento de ar-condicionado.</p>
 <p class="gr-txt">A capacidade necessária depende não apenas da área, mas também da quantidade de pessoas, incidência solar, equipamentos, iluminação, janelas, cobertura e condições climáticas da região.</p>
-<p class="gr-note">Para uma recomendação mais precisa, utilize o cálculo completo.</p>
+<p class="gr-note">Use este guia para conferir o resultado do seu cálculo.</p>
 <div class="tw gr-tw" tabindex="0" role="region" aria-label="Tabela de referência de BTUs por área">
 <table class="gr-tab"><caption>Faixas de referência por área do ambiente</caption>
 <thead><tr><th scope="col">Área</th><th scope="col">Residencial</th><th scope="col">Comercial</th></tr></thead>
@@ -607,8 +607,8 @@ h1{background:linear-gradient(100deg,#0e1a33 15%,#1d4ed8 70%,#0b86c9);-webkit-ba
 
 <div class="card gr-card gr-end rv">
 <p class="gr-warn"><b>Importante:</b> esta tabela é uma referência rápida e não substitui o cálculo detalhado de carga térmica. A necessidade real pode variar conforme área, pé-direito, quantidade de pessoas, incidência solar, janelas, cobertura, iluminação, equipamentos e condições climáticas da região.</p>
-<p class="gr-cta-tx">Para obter uma recomendação mais adequada, utilize o Cálculo Completo.</p>
-<button class="btn" id="gr-cta" type="button">Calcular BTUs com mais precisão →</button>
+<p class="gr-cta-tx">Quer dimensionar outro ambiente?</p>
+<button class="btn" id="gr-cta" type="button">Fazer novo cálculo →</button>
 </div>
 </section>
 <p class="small">Este cálculo é uma estimativa para dimensionamento inicial. O resultado pode variar conforme características construtivas, orientação solar, isolamento térmico, equipamentos, ventilação, ocupação e condições climáticas. Para projetos de climatização de maior porte, recomenda-se avaliação técnica.</p>
@@ -828,7 +828,7 @@ async function loadWeather(index){
 }
 function geo(){const m=$('geoMsg');if(!navigator.geolocation){m.textContent='Geolocalização indisponível. Escolha manualmente.';return}m.textContent='Localizando…';
  navigator.geolocation.getCurrentPosition(p=>{let b=0,d=1e9;CIDADES.forEach((c,i)=>{const x=(c[3]-p.coords.latitude),y=(c[4]-p.coords.longitude)*Math.cos(c[3]*Math.PI/180),q=x*x+y*y;if(q<d){d=q;b=i}});S.cidade=b;$('uf').value=CIDADES[b][0];fillCid(CIDADES[b][0],b);$('cid').value=b;m.textContent=`Cidade mais próxima: ${CIDADES[b][1]}-${CIDADES[b][0]}. Atualizando clima em tempo real…`;loadWeather(b)},()=>m.textContent='Não foi possível obter a localização. Escolha manualmente.',{timeout:8000})}
-function show(n){step=Math.max(0,n);$('res').classList.add('hid');$('wiz').classList.remove('hid');
+function show(n){step=Math.max(0,n);$('guia-rapido').classList.add('hid');$('res').classList.add('hid');$('wiz').classList.remove('hid');
  document.querySelectorAll('[data-s]').forEach(e=>e.classList.toggle('hid',+e.dataset.s!==step));
  $('stl').textContent=`Etapa ${step+1} de 7`;$('stn').textContent=NAMES[step];$('pg').style.width=(step+1)/7*100+'%';
  [...$('stps').children].forEach((e,i)=>e.classList.toggle('on',i===step));$('prev').style.visibility=step?'visible':'hidden';
@@ -897,7 +897,7 @@ function resultado(){
  <div class="card result-reveal delay2"><h2>Influência do clima</h2><p><b>Cidade selecionada:</b> ${cid[1]} - ${cid[0]}<br><b>Temperatura de projeto usada no cálculo:</b> ${Number.isFinite(S.tempRef)?S.tempRef.toFixed(1).replace(".",","):cid[2]} °C<br><b>Clima de hoje (informativo):</b> ${S.weather&&Number.isFinite(S.weather.min)&&Number.isFinite(S.weather.max)?S.weather.min.toFixed(1).replace(".",",")+" a "+S.weather.max.toFixed(1).replace(".",",")+" °C":"indisponível"}<br><b>Classificação:</b> ${classe(Number.isFinite(S.tempRef)?S.tempRef:cid[2])}</p><p class="small">A temperatura de projeto representa uma condição de calor de referência da cidade. <b>A temperatura atual é exibida apenas como informação e não é usada diretamente no cálculo.</b>${S.proj?` Base: histórico de ${S.proj.anos}; maior máxima registrada: ${S.proj.max.toFixed(1).replace(".",",")} °C.`:" Base: referência cadastrada da cidade."}</p><p class="small"><b>Fonte meteorológica:</b> Open-Meteo.</p></div>
  <div class="nav"><button class="btn s" id="nv" type="button">← Fazer novo cálculo</button><button class="btn" id="sh" type="button">Compartilhar resultado</button></div><div class="small" id="shm"></div>`;
  $('wiz').classList.add('hid');$('res').classList.remove('hid');$('pg').style.width='100%';window.scrollTo({top:0,behavior:'smooth'});
- anim($('calc'),r.total);if($('rc'))anim($('rc'),cap);
+ $('guia-rapido').classList.remove('hid');anim($('calc'),r.total);if($('rc'))anim($('rc'),cap);
  setTimeout(()=>document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'),80);
  $('vb').onclick=()=>{$('det').classList.toggle('hid');$('det').scrollIntoView({behavior:'smooth'})};
  $('nv').onclick=resetForm;
@@ -933,7 +933,7 @@ function multiFinal(){
  <div class="card result-reveal delay1"><h2>Alertas</h2>${al.map(a=>`<div class="al ${a[0]}">${a[1]}</div>`).join('')}</div>
  <div class="card result-reveal delay2 sales-card"><h2>🛒 Sugestão para atendimento</h2><div class="sales-grid"><div><span class="small">Condensadora</span><strong>${cond?fm(cond)+' BTUs':'2 sistemas'}</strong></div><div><span class="small">Evaporadoras</span><strong>${evs.map(fm).join(' + ')}</strong></div></div><p class="small">Referência para apresentar ao cliente. O modelo final deve considerar tensão, ciclo, tecnologia, fabricante e combinações permitidas.</p></div>
  <div class="nav"><button class="btn s" id="nv" type="button">← Fazer novo cálculo</button><button class="btn" id="sh" type="button">Copiar resumo</button></div><div class="small" id="shm"></div>`;
- window.scrollTo({top:0,behavior:'smooth'});anim($('calc'),load);if($('rc'))anim($('rc'),cond);
+ window.scrollTo({top:0,behavior:'smooth'});$('guia-rapido').classList.remove('hid');anim($('calc'),load);if($('rc'))anim($('rc'),cond);
  $('nv').onclick=resetForm;
  $('sh').onclick=async()=>{const t=multiTexto(d);try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);$('shm').textContent='Resumo copiado.'}}catch(e){$('shm').textContent='Não foi possível compartilhar neste navegador.'}}}
 /* ===== NOVO CÁLCULO: limpa o formulário e volta à etapa 1 ===== */
@@ -1041,7 +1041,7 @@ init();
  var t=document.getElementById('gr-tg'),p=document.getElementById('gr-lp');
  if(t&&p)t.addEventListener('click',function(){var o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));p.classList.toggle('c',o)});
  var b=document.getElementById('gr-cta');
- if(b)b.addEventListener('click',function(){if(typeof show==='function')show(step)});
+ if(b)b.addEventListener('click',function(){if(typeof resetForm==='function')resetForm()});
  var els=document.querySelectorAll('.gr .rv');
  if('IntersectionObserver' in window&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
   document.documentElement.classList.add('js');
