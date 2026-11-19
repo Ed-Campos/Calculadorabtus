@@ -669,12 +669,12 @@ function calcular(s){
  return{L,A,total,marg,need,cid,ja,ev,rec:recomendar(need,total)}
 }
 /* Acima do maior aparelho: divide em N aparelhos iguais (2 a 6). Recomenda o de menor capacidade total;
-   se houver opção com menos aparelhos até 8% acima desse total, prefere a com menos aparelhos. */
+   se houver opção com menos aparelhos até 35% acima desse total, prefere a com menos aparelhos. */
 function planoMultiplo(need){
  const caps=C.capacidadesBTU,opts=[];
  for(let n=2;n<=6;n++){const c=caps.find(x=>x*n>=need);if(c)opts.push({n,cap:c,total:n*c,folga:(n*c-need)/need})}
  if(!opts.length)return null;
- const min=Math.min(...opts.map(o=>o.total)),best=opts.filter(o=>o.total<=min*1.08).sort((a,b)=>a.n-b.n)[0];
+ const min=Math.min(...opts.map(o=>o.total)),best=opts.filter(o=>o.total<=min*1.35).sort((a,b)=>a.n-b.n)[0];
  return{n:best.n,cap:best.cap,total:best.total,options:opts}
 }
 function recomendar(need,total){
