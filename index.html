@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Dimensionamento de BTUs</title>
+<meta name="color-scheme" content="light"><meta name="theme-color" content="#f3f7fd">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#04183a;--card:#0a2a52;--tx:#f6f0dc;--mu:#a9b8cc;--ln:#22477a;--g:#d4af37;--gd:#e6c761;--b:#e6c761;--ok:#0f8a5f;--wa:#e0a84a;--er:#ff8a7a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:880px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:.2em 0;color:var(--g);border-bottom:3px solid var(--g);display:inline-block;padding-bottom:4px}h2{font-size:1.15rem;margin:0 0 .6em}h3{font-size:1rem;margin:1em 0 .4em}
+.sub{color:var(--mu);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--ln);border-top:4px solid var(--g);border-radius:16px;padding:20px;margin-bottom:16px;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.prog{height:6px;background:var(--ln);border-radius:9px;overflow:hidden;margin:8px 0 4px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#e0bf55,var(--g));transition:width .5s ease}
+.st{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mu)}
+.steps{display:flex;gap:4px;margin:10px 0 16px;overflow-x:auto}
+.steps span{flex:1;min-width:64px;text-align:center;font-size:.72rem;color:var(--mu);padding:4px 2px;border-bottom:2px solid var(--ln)}
+.steps span.on{color:var(--g);border-color:var(--g);font-weight:700}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--b);outline-offset:1px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.opt{border:1.5px solid var(--ln);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:var(--bg);font:inherit;color:var(--tx);transition:.2s}
+.opt.sel{border-color:var(--g);background:color-mix(in srgb,var(--g) 12%,var(--card));font-weight:600}
+.opt .e{font-size:1.5rem;display:block}.opt small{color:var(--mu);font-weight:400}
+.area{margin-top:12px;padding:12px;border-radius:10px;background:color-mix(in srgb,var(--b) 10%,var(--card));font-weight:600}
+.eq{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln)}
+.eq input{width:76px}.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-weight:400;cursor:pointer}.chk input{width:20px;margin-top:3px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:10px;margin-bottom:28px}
+.btn{border:0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#e6c761,#c9a227);color:#04183a}
+.btn.s{background:transparent;color:var(--tx);border:1px solid var(--ln)}
+.err{color:var(--er);font-size:.88rem;margin-top:0}.err:empty{display:none}
+#wiz .card{margin-bottom:6px}
+.hero{text-align:center;background:linear-gradient(160deg,#ecd17a,#c9a227);color:#04183a;border:0}
+.hero .k{letter-spacing:.14em;font-size:.75rem;color:#0a2a52;font-weight:700}.hero .big{font-size:3rem;font-weight:700;line-height:1.1}
+.hero svg{width:min(320px,80%);margin:8px auto;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.chips span{background:rgba(4,24,58,.14);border-radius:99px;padding:4px 12px;font-size:.85rem}
+.al{border-left:4px solid var(--wa);padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--wa) 10%,var(--card));margin:8px 0;font-size:.92rem}
+.al.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.al.er{border-color:var(--er)}
+.cap{display:grid;grid-template-columns:76px 1fr 130px;gap:10px;align-items:center;font-size:.88rem;margin:6px 0}
+.bar{height:10px;background:var(--ln);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--mu);transition:width 1s ease}
+.cap.mp{grid-template-columns:108px 1fr 130px}@media(max-width:520px){.cap.mp{grid-template-columns:108px 1fr}}
+.cap.rec .bar i{background:var(--g)}.cap.rec{font-weight:700}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{padding:8px;border-bottom:1px solid var(--ln);text-align:left}td.n,th.n{text-align:right}
+.ln{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--ln);font-size:.92rem}.ln small{color:var(--mu);display:block}.ln b{white-space:nowrap}
+.tot{font-weight:700;font-size:1.02rem}
+.hid{display:none}.small{font-size:.82rem;color:var(--mu)}
+details summary{cursor:pointer;font-weight:600}
+@media(max-width:520px){.cap{grid-template-columns:62px 1fr}.cap span:last-child{grid-column:1/-1;margin-top:-4px}.hero .big{font-size:2.4rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== acabamento visual ===== */
+html{background:var(--bg)}
+body{background:radial-gradient(130% 55% at 50% -8%,#14407a 0%,rgba(4,24,58,0) 62%),var(--bg);min-height:100vh;letter-spacing:.005em}
+.w{padding-top:28px}
+.mast{display:flex;align-items:center;gap:16px;margin:0 0 6px}
+.mast .ic{flex:none;width:54px;height:54px;border-radius:18px;background:linear-gradient(145deg,#f0d980,#b98f1c);display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5)}
+h1{font:600 clamp(1.45rem,4.6vw,2.15rem)/1.12 Georgia,"Iowan Old Style","Palatino Linotype",Palatino,serif;color:var(--tx);border:0;padding:0;display:block;margin:0;letter-spacing:-.012em}
+h2{font:600 1.3rem/1.2 Georgia,"Iowan Old Style",Palatino,serif;color:var(--g);margin:0 0 .8em}
+.sub{margin:10px 0 22px;font-size:1.02rem}
+.card{border:1px solid var(--ln);border-top:1px solid var(--ln);border-radius:22px;padding:24px;background:linear-gradient(180deg,#0e3363 0%,var(--card) 100%);box-shadow:0 14px 34px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.06)}
+.prog{height:8px;background:rgba(255,255,255,.10);margin:10px 0 8px}
+.prog i{background:linear-gradient(90deg,#b98f1c,#f0d980);box-shadow:0 0 12px rgba(230,199,97,.5)}
+.st{font-size:.85rem}.st b{color:var(--g)}
+.steps{gap:6px;margin:12px 0 18px}
+.steps span{flex:0 0 auto;min-width:0;border:1px solid var(--ln);border-radius:99px;padding:6px 12px;font-size:.74rem;white-space:nowrap}.steps{scrollbar-width:none}.steps::-webkit-scrollbar{display:none}
+.steps span.on{background:linear-gradient(135deg,#f0d980,#c9a227);color:#04183a;border-color:transparent;font-weight:700}
+label{color:var(--tx);opacity:.92}
+input,select{background:rgba(4,24,58,.55);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{outline:0;border-color:var(--g);box-shadow:0 0 0 3px rgba(212,175,55,.28)}
+.opt{border-radius:16px;padding:16px 12px;background:rgba(4,24,58,.45);transition:border-color .2s,transform .15s,background .2s}
+.opt:hover{border-color:var(--g);transform:translateY(-1px)}
+.opt.sel{border-color:var(--g);background:linear-gradient(180deg,rgba(212,175,55,.22),rgba(212,175,55,.08));box-shadow:0 0 0 1px var(--g) inset}
+.area{background:rgba(212,175,55,.12);border:1px dashed rgba(212,175,55,.55);color:var(--gd);border-radius:14px}
+.btn{border-radius:99px;padding:13px 28px;box-shadow:0 8px 20px rgba(201,162,39,.30);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(201,162,39,.42)}
+.btn.s{border-radius:99px;box-shadow:none;background:rgba(255,255,255,.04);border:1px solid var(--ln);color:var(--tx)}
+.btn.s:hover{border-color:var(--g);box-shadow:none}
+.card.hero{background:linear-gradient(160deg,#f3dd8c,#c9a227);color:#04183a;border:0}
+.hero{border-radius:26px;padding:30px 22px;box-shadow:0 18px 44px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5)}
+.hero .big{font-family:Georgia,"Iowan Old Style",Palatino,serif;font-weight:700;letter-spacing:-.02em}
+.hero .k{font-size:.92rem;letter-spacing:.01em;opacity:.85;font-weight:600}
+.chips span{border:1px solid rgba(4,24,58,.2);font-weight:600}
+th{color:var(--g);font-weight:600}
+.ln b,.tot{color:var(--tx)}.ln.tot b{color:var(--g)}
+.al{border-radius:12px}
+.bar{background:rgba(255,255,255,.10)}
+
+/* cartão de resultado em azul */
+.card.hero{background:radial-gradient(80% 60% at 50% 0%,#2059a3 0%,rgba(11,47,99,0) 70%),linear-gradient(165deg,#0c3166,#04183a);color:#f6f0dc;border:1px solid rgba(230,199,97,.38);box-shadow:0 18px 44px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04) inset}
+.hero .k{color:#e6c761;opacity:1;font-weight:600}
+.hero #calc{color:#f6f0dc}
+.hero .big{color:#f0d980;text-shadow:0 2px 18px rgba(230,199,97,.28)}
+.hero .big small{color:#e6c761}
+.hero svg{filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
+.hero svg + .k{border-top:1px solid rgba(230,199,97,.28);padding-top:16px;margin-top:8px}
+.hero .chips span{background:rgba(255,255,255,.07);border:1px solid rgba(230,199,97,.42);color:#f6f0dc;font-weight:500}
+.hero .btn{box-shadow:0 8px 22px rgba(201,162,39,.35)}
+
+/* ===== Guia rápido de BTUs ===== */
+.gr{margin-top:10px}
+.gr .card{animation:none}
+.gr-card{margin-bottom:18px}
+.gr-lead{font:600 1.12rem/1.4 Georgia,"Iowan Old Style",Palatino,serif;color:var(--tx);margin:0 0 8px}
+.gr-txt{color:var(--mu);margin:0 0 10px;font-size:.95rem;max-width:68ch}
+.gr-note{color:var(--gd);font-weight:600;font-size:.92rem;margin:0 0 18px}
+.gr-tw{border:1px solid var(--ln);border-radius:16px;background:rgba(4,24,58,.35)}
+.gr-tw:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.gr-tab{min-width:560px;border-collapse:collapse;font-size:.95rem}
+.gr-tab caption{text-align:left;padding:12px 16px 4px;color:var(--mu);font-size:.8rem;caption-side:top}
+.gr-tab th,.gr-tab td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--ln);white-space:nowrap}
+.gr-tab thead th{color:var(--g);font-weight:600;font-size:.88rem}
+.gr-tab tbody th{font-weight:600;color:var(--tx)}
+.gr-tab td{font-variant-numeric:tabular-nums}
+.gr-tab tbody tr{transition:background .2s}
+.gr-tab tbody tr:hover{background:rgba(212,175,55,.09)}
+.gr-tab tbody tr:last-child th,.gr-tab tbody tr:last-child td{border-bottom:0}
+.gr-hint{display:none;margin:8px 2px 0;font-size:.76rem;color:var(--mu)}
+.gr-leg{margin-top:16px;border:1px solid var(--ln);border-radius:16px;background:rgba(4,24,58,.3)}
+.gr-tg{all:unset;box-sizing:border-box;display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;font-weight:600;font-size:.92rem;color:var(--tx);border-radius:16px}
+.gr-tg:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+.gr-tg svg{flex:none;color:var(--g);transition:transform .3s ease}
+.gr-tg[aria-expanded=false] svg{transform:rotate(-90deg)}
+.gr-lp{display:grid;grid-template-rows:1fr;transition:grid-template-rows .35s ease}
+.gr-lp.c{grid-template-rows:0fr}
+.gr-lp>div{overflow:hidden;min-height:0}
+.gr-lp ul{margin:0;padding:0 18px 14px 34px;color:var(--mu);font-size:.9rem;line-height:1.55}
+.gr-lp li{margin:5px 0}
+.gr-sol{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gr-so{border:1px solid var(--ln);border-radius:16px;padding:16px;background:rgba(4,24,58,.35);transition:border-color .2s,transform .2s}
+.gr-so:hover{border-color:var(--g);transform:translateY(-2px)}
+.gr-so b{display:block;margin:10px 0 4px;font-size:.95rem;line-height:1.3}
+.gr-so p{margin:0;color:var(--mu);font-size:.88rem}
+.lv{display:flex;gap:4px}.lv i{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.14)}.lv i.on{background:linear-gradient(90deg,#b98f1c,#f0d980)}
+.gr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gr-c{border:1px solid var(--ln);border-radius:16px;padding:18px;background:rgba(4,24,58,.35);transition:border-color .2s,transform .2s}
+.gr-c:hover{border-color:var(--g);transform:translateY(-2px)}
+.gr-c .ic{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;font-size:1.3rem;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.35);margin-bottom:10px}
+.gr-c b{display:block;margin-bottom:4px}
+.gr-c p{margin:0;color:var(--mu);font-size:.9rem}
+.gr-end{text-align:left}
+.gr-warn{margin:0 0 14px;padding:14px 16px;border-left:4px solid var(--g);border-radius:12px;background:rgba(212,175,55,.09);color:var(--tx);font-size:.92rem;line-height:1.55}
+.gr-cta-tx{margin:0 0 14px;color:var(--mu)}
+.js .rv{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
+.js .rv.in{opacity:1;transform:none}
+@media(max-width:860px){.gr-sol{grid-template-columns:repeat(2,1fr)}.gr-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.gr-sol,.gr-grid{grid-template-columns:1fr}.gr-hint{display:block}.gr-card{padding:20px 16px}.gr-end .btn{width:100%}.gr-tab th,.gr-tab td{padding:12px 14px}}
+@media(prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}.gr-lp,.gr-tg svg{transition:none}}
+
+/* ===== INTERAÇÕES / ANIMAÇÕES 2.0 ===== */
+:root{--ease:cubic-bezier(.22,1,.36,1)}
+button,input,select{-webkit-tap-highlight-color:transparent}
+.btn,.opt,.gr-tg{position:relative;overflow:hidden}
+.btn::after,.opt::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--rx,50%) var(--ry,50%),rgba(255,255,255,.32),transparent 36%);opacity:0;transition:opacity .35s ease;pointer-events:none}
+.btn:active::after,.opt:active::after{opacity:1}
+.btn:active,.opt:active{transform:scale(.975)}
+.btn{transition:transform .22s var(--ease),box-shadow .25s var(--ease),filter .25s ease}
+.btn:hover{filter:brightness(1.06)}
+.opt{transition:transform .24s var(--ease),border-color .25s ease,background .25s ease,box-shadow .25s ease}
+.card{will-change:transform,opacity}
+[data-s]{transition:opacity .34s ease,transform .42s var(--ease)}
+[data-s].step-leave{opacity:0;transform:translateX(-18px) scale(.985)}
+[data-s].step-enter{opacity:0;transform:translateX(18px) scale(.985)}
+[data-s].step-active{opacity:1;transform:none}
+.nav{transition:opacity .25s ease}
+.prog i{transition:width .65s var(--ease)}
+.steps span{transition:color .3s ease,background .3s ease,border-color .3s ease,transform .3s var(--ease)}
+.steps span.on{transform:translateY(-1px)}
+.area{transition:transform .3s var(--ease),background .3s ease}
+.area.bump{animation:bump .45s var(--ease)}
+@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.025)}100%{transform:scale(1)}}
+.weather-box{margin-top:14px;border:1px solid rgba(230,199,97,.28);border-radius:18px;background:linear-gradient(135deg,rgba(32,89,163,.22),rgba(4,24,58,.42));overflow:hidden;min-height:92px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:opacity .35s ease,transform .35s var(--ease)}
+.weather-box.loading{opacity:.72;animation:pulseWeather 1.2s ease-in-out infinite}
+@keyframes pulseWeather{50%{opacity:.45}}
+.weather-live{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:14px 16px}
+.weather-icon{font-size:2rem;filter:drop-shadow(0 5px 8px rgba(0,0,0,.25))}
+.weather-main b{display:block;font-size:1.18rem;color:var(--tx)}
+.weather-main small{display:block;color:var(--mu);margin-top:2px}
+.weather-range{text-align:right}.weather-range b{display:block;color:var(--g);font-size:1.05rem}.weather-range small{color:var(--mu)}
+.weather-source{padding:7px 14px;border-top:1px solid rgba(230,199,97,.15);font-size:.72rem;color:var(--mu);display:flex;justify-content:space-between;gap:10px}
+.weather-source strong{color:var(--g)}
+.weather-empty{padding:18px;color:var(--mu);font-size:.88rem}
+.weather-error{padding:15px 16px;color:#ffd6d0;font-size:.86rem;background:rgba(255,138,122,.07)}
+.weather-refresh{border:0;background:transparent;color:var(--g);font:inherit;font-weight:700;cursor:pointer}
+.sales-card{border-color:rgba(230,199,97,.35)!important}.sales-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.sales-grid>div{padding:14px;border:1px solid var(--ln);border-radius:14px;background:rgba(4,24,58,.35)}.sales-grid .small{display:block;margin-bottom:4px}.sales-grid strong{display:block;color:var(--g);font-size:1.1rem}@media(max-width:520px){.sales-grid{grid-template-columns:1fr}}
+.result-reveal{animation:resultReveal .72s var(--ease) both}
+.result-reveal.delay1{animation-delay:.08s}.result-reveal.delay2{animation-delay:.16s}.result-reveal.delay3{animation-delay:.24s}
+@keyframes resultReveal{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+.hero .big{animation:numberGlow .9s ease both}
+@keyframes numberGlow{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.cap{transition:transform .3s var(--ease),background .3s ease}
+.cap:hover{transform:translateX(3px)}
+
+
+/* ===== TELA DE BOAS-VINDAS ===== */
+#welcome{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;overflow:auto;padding:max(20px,env(safe-area-inset-top,0px)) 20px max(20px,env(safe-area-inset-bottom,0px));background:radial-gradient(120% 70% at 50% 0%,#14407a 0%,rgba(4,24,58,0) 65%),radial-gradient(80% 50% at 50% 100%,rgba(90,190,255,.14),rgba(4,24,58,0) 70%),#04183a;transition:opacity .5s ease,transform .5s ease}
+#welcome.out{opacity:0;transform:scale(1.03);pointer-events:none}
+.wl-in{position:relative;z-index:2;max-width:440px;width:100%;text-align:center}
+.wl-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.wl-snow span{position:absolute;top:-8%;color:#bfe6ff;opacity:.0;animation:wlFall linear infinite}
+@keyframes wlFall{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.5}90%{opacity:.35}100%{transform:translateY(112vh) rotate(300deg);opacity:0}}
+.wl-ac{position:relative;width:min(340px,86vw);margin:0 auto 6px}
+.wl-ac::before{content:"";position:absolute;left:50%;top:48%;width:120%;aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(110,200,255,.28),rgba(110,200,255,0) 62%);animation:wlGlow 3.6s ease-in-out infinite}
+@keyframes wlGlow{50%{opacity:.55;transform:translate(-50%,-50%) scale(1.08)}}
+.wl-ac svg{overflow:visible;position:relative;width:100%;height:auto;display:block;filter:drop-shadow(0 14px 26px rgba(0,0,0,.4))}
+.wl-flap{transform-box:fill-box;transform-origin:50% 0;animation:wlFlap 4s ease-in-out infinite}
+@keyframes wlFlap{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg) translateY(1px)}}
+.wl-air path{fill:none;stroke:#8fdcff;stroke-width:3.2;stroke-linecap:round;opacity:0;animation:wlAir 2.8s ease-in infinite}
+@keyframes wlAir{0%{transform:translateY(-6px);opacity:0}25%{opacity:.85}100%{transform:translateY(58px);opacity:0}}
+.wl-led{animation:wlLed 1.6s ease-in-out infinite}
+@keyframes wlLed{50%{opacity:.25}}
+.wl-in h1{margin:10px 0 6px;font-size:clamp(1.55rem,6.2vw,2.1rem);line-height:1.15;color:var(--tx)}
+.wl-in h1 em{font-style:normal;color:var(--gd)}
+.wl-in p{margin:0 auto 18px;max-width:34ch;color:var(--mu)}
+.wl-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 24px}
+.wl-chips span{font-size:.82rem;padding:6px 12px;border-radius:99px;border:1px solid var(--ln);background:rgba(255,255,255,.04);color:var(--tx)}
+.wl-go{font-size:1.1rem;padding:15px 38px!important;animation:wlPulse 2.4s ease-out infinite}
+@keyframes wlPulse{0%{box-shadow:0 8px 20px rgba(201,162,39,.30),0 0 0 0 rgba(230,199,97,.55)}70%,100%{box-shadow:0 8px 20px rgba(201,162,39,.30),0 0 0 18px rgba(230,199,97,0)}}
+.wl-in>*{opacity:0;transform:translateY(14px);animation:wlUp .7s var(--ease,ease) forwards}
+.wl-in>:nth-child(1){animation-delay:.05s}.wl-in>:nth-child(2){animation-delay:.25s}.wl-in>:nth-child(3){animation-delay:.4s}.wl-in>:nth-child(4){animation-delay:.55s}.wl-in>:nth-child(5){animation-delay:.7s}
+@keyframes wlUp{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.wl-in>*{opacity:1;transform:none}.wl-air path{opacity:.5}}
+
+/* ===== REDESIGN: ELEGANTE · TECNOLÓGICO ===== */
+:root{--bg:#050b18;--card:#0a1630;--tx:#eef3fb;--mu:#8fa0ba;--ln:rgba(140,170,220,.16);--g:#d8b45a;--gd:#ecd18a;--cy:#5ad1ff;--cy2:#2f8cff;--ok:#2ee6a6;--wa:#f0b955;--er:#ff7d8d;
+--fd:"Space Grotesk","Inter",system-ui,sans-serif;--fb:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--fm:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+html{background:var(--bg)}
+body{font-family:var(--fb);background:
+radial-gradient(60% 40% at 85% -5%,rgba(47,140,255,.22),transparent 70%),
+radial-gradient(50% 35% at 5% 8%,rgba(216,180,90,.12),transparent 70%),
+radial-gradient(70% 40% at 50% 110%,rgba(90,209,255,.10),transparent 70%),var(--bg);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(140,170,220,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(140,170,220,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(75% 60% at 50% 0%,#000 25%,transparent 100%);mask-image:radial-gradient(75% 60% at 50% 0%,#000 25%,transparent 100%)}
+.w{position:relative;z-index:1;padding-top:36px}
+.mast{gap:18px;margin-bottom:10px}
+.mast .ic{width:56px;height:56px;border-radius:16px;background:linear-gradient(145deg,rgba(90,209,255,.18),rgba(216,180,90,.14));border:1px solid rgba(90,209,255,.4);box-shadow:0 0 28px rgba(90,209,255,.22),inset 0 1px 0 rgba(255,255,255,.18)}
+.mast .ic svg{stroke:var(--cy)}
+h1{font-family:var(--fd);font-weight:600;letter-spacing:-.025em;background:linear-gradient(100deg,#fff 20%,#a9d8ff 60%,var(--gd));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-family:var(--fd);font-weight:600;font-size:1.2rem;letter-spacing:-.01em;color:var(--tx);display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:3px;height:1.05em;border-radius:3px;background:linear-gradient(var(--cy),var(--g));box-shadow:0 0 12px rgba(90,209,255,.6)}
+h3{font-family:var(--fd);color:var(--gd);font-weight:500;letter-spacing:.02em}
+.sub{color:var(--mu);font-weight:300}
+.card{position:relative;background:linear-gradient(160deg,rgba(20,38,78,.62),rgba(8,16,36,.72));-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid var(--ln);border-radius:24px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07)}
+.card::before{content:"";position:absolute;left:24px;right:24px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(90,209,255,.7),rgba(216,180,90,.7),transparent);opacity:.8}
+.st{font-family:var(--fm);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+.st b{color:var(--cy);font-weight:500}
+.prog{height:4px;background:rgba(140,170,220,.14)}
+.prog i{background:linear-gradient(90deg,var(--cy2),var(--cy),var(--gd));box-shadow:0 0 16px rgba(90,209,255,.7)}
+.steps span{font-family:var(--fm);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.03);border:1px solid var(--ln);color:var(--mu)}
+.steps span.on{background:linear-gradient(135deg,rgba(90,209,255,.22),rgba(47,140,255,.14));color:#fff;border-color:rgba(90,209,255,.6);box-shadow:0 0 18px rgba(90,209,255,.25)}
+label{font-family:var(--fd);font-weight:500;font-size:.86rem;letter-spacing:.03em;color:#cfdbee}
+input,select{background:rgba(5,11,24,.6);border:1px solid var(--ln);border-radius:12px;color:var(--tx);font-family:var(--fb)}
+input[type=number]{font-family:var(--fm);font-size:.98rem}
+input:focus,select:focus{border-color:var(--cy);box-shadow:0 0 0 3px rgba(90,209,255,.2),0 0 22px rgba(90,209,255,.15)}
+select{appearance:none;-webkit-appearance:none;padding-right:38px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20'%3E%3Cpath d='M5 8l5 5 5-5' fill='none' stroke='%235ad1ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+input[type=checkbox]{accent-color:var(--cy)}
+.opt{background:rgba(255,255,255,.025);border:1px solid var(--ln);border-radius:16px;font-family:var(--fd)}
+.opt:hover{border-color:rgba(90,209,255,.6);background:rgba(90,209,255,.06);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.opt.sel{border-color:var(--cy);background:linear-gradient(180deg,rgba(90,209,255,.18),rgba(47,140,255,.06));box-shadow:0 0 0 1px var(--cy) inset,0 0 26px rgba(90,209,255,.22)}
+.opt .e{filter:drop-shadow(0 4px 10px rgba(90,209,255,.35))}
+.area{font-family:var(--fm);font-size:.92rem;background:rgba(90,209,255,.07);border:1px solid rgba(90,209,255,.35);border-style:solid;color:var(--cy);border-radius:14px}
+.btn{font-family:var(--fd);font-weight:600;letter-spacing:.02em;color:#04101f;background:linear-gradient(135deg,var(--gd),var(--g) 55%,#b98f1c);box-shadow:0 10px 28px rgba(216,180,90,.28),inset 0 1px 0 rgba(255,255,255,.45)}
+.btn:hover{box-shadow:0 12px 34px rgba(216,180,90,.42),0 0 0 1px rgba(255,255,255,.2) inset}
+.btn.s{color:var(--tx);background:rgba(255,255,255,.04);border:1px solid var(--ln);box-shadow:none}
+.btn.s:hover{border-color:var(--cy);color:#fff;box-shadow:0 0 20px rgba(90,209,255,.18)}
+.err{color:var(--er)}
+.eq{border-color:var(--ln)}
+.weather-box{background:linear-gradient(135deg,rgba(47,140,255,.14),rgba(5,11,24,.55));border:1px solid rgba(90,209,255,.28);border-radius:18px}
+.weather-main b,.weather-range b{font-family:var(--fm)}
+.weather-range b{color:var(--cy)}
+.weather-source{border-color:var(--ln)}.weather-source strong,.weather-refresh{color:var(--cy)}
+.al{border-radius:14px;background:rgba(240,185,85,.07);border:1px solid rgba(240,185,85,.22);border-left:3px solid var(--wa)}
+.al.ok{background:rgba(46,230,166,.07);border-color:rgba(46,230,166,.25);border-left-color:var(--ok)}
+.al.er{background:rgba(255,125,141,.07);border-color:rgba(255,125,141,.25);border-left-color:var(--er)}
+/* resultado */
+.card.hero{background:radial-gradient(70% 55% at 50% 0%,rgba(47,140,255,.35),transparent 70%),linear-gradient(165deg,rgba(14,32,74,.85),rgba(5,11,24,.92));border:1px solid rgba(90,209,255,.35);border-radius:28px;padding:38px 24px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(47,140,255,.18),inset 0 1px 0 rgba(255,255,255,.1)}
+.card.hero::before{left:10%;right:10%;background:linear-gradient(90deg,transparent,var(--cy),var(--gd),transparent)}
+.hero .k{font-family:var(--fm);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cy);font-weight:500}
+.hero .big{font-family:var(--fd);font-weight:600;font-size:clamp(2.8rem,10vw,4.2rem);letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#9fd6ff 60%,var(--gd));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 26px rgba(90,209,255,.35))}
+.hero .big small{font-family:var(--fm);font-size:.35em;letter-spacing:.12em;-webkit-text-fill-color:var(--gd);color:var(--gd)}
+.hero svg + .k{border-color:var(--ln)}
+.hero .chips span{font-family:var(--fm);font-size:.74rem;letter-spacing:.04em;background:rgba(90,209,255,.07);border:1px solid rgba(90,209,255,.3);color:#d6ecff;border-radius:99px}
+.bar{height:6px;background:rgba(140,170,220,.14)}
+.bar i{background:linear-gradient(90deg,#3a4e72,#6b84b0)}
+.cap.rec .bar i{background:linear-gradient(90deg,var(--cy2),var(--cy),var(--gd));box-shadow:0 0 14px rgba(90,209,255,.6)}
+.cap{font-family:var(--fm);font-size:.8rem}.cap.rec{color:#fff}
+th{font-family:var(--fm);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cy);font-weight:500}
+td,th{border-color:var(--ln)}
+.ln{border-bottom:1px dashed var(--ln)}.ln b{font-family:var(--fm);font-weight:500;color:var(--cy)}.ln.tot b{color:var(--gd)}
+.sales-card{border-color:rgba(216,180,90,.35)!important}.sales-grid>div{background:rgba(255,255,255,.03);border-radius:16px}.sales-grid strong{font-family:var(--fm);color:var(--gd)}
+/* guia rápido */
+.gr-lead{font-family:var(--fd);font-weight:500;color:var(--tx)}.gr-note{color:var(--cy);font-family:var(--fm);font-size:.78rem;letter-spacing:.04em}
+.gr-tw,.gr-leg,.gr-so,.gr-c{background:rgba(255,255,255,.025);border-color:var(--ln)}
+.gr-tab thead th{color:var(--cy)}.gr-tab td{font-family:var(--fm);font-size:.88rem;color:#cfe3f7}
+.gr-tab tbody tr:hover{background:rgba(90,209,255,.07)}
+.gr-so:hover,.gr-c:hover{border-color:rgba(90,209,255,.55);box-shadow:0 14px 34px rgba(0,0,0,.35),0 0 24px rgba(90,209,255,.12)}
+.lv i.on{background:linear-gradient(90deg,var(--cy2),var(--cy));box-shadow:0 0 8px rgba(90,209,255,.6)}
+.gr-c .ic{background:rgba(90,209,255,.1);border:1px solid rgba(90,209,255,.3);border-radius:14px}
+.gr-tg svg{color:var(--cy)}
+.gr-warn{background:rgba(216,180,90,.07);border-left-color:var(--g)}
+.small{color:var(--mu)}
+/* boas-vindas */
+#welcome{background:radial-gradient(70% 45% at 80% 0%,rgba(47,140,255,.3),transparent 70%),radial-gradient(60% 40% at 10% 100%,rgba(216,180,90,.12),transparent 70%),#050b18}
+#welcome::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(140,170,220,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(140,170,220,.06) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(60% 55% at 50% 40%,#000,transparent);mask-image:radial-gradient(60% 55% at 50% 40%,#000,transparent)}
+.wl-in h1{font-family:var(--fd);font-weight:600;letter-spacing:-.03em}
+.wl-in h1 em{background:linear-gradient(100deg,var(--cy),var(--gd));-webkit-background-clip:text;background-clip:text;color:transparent}
+.wl-in p{font-weight:300}
+.wl-chips span{font-family:var(--fm);font-size:.7rem;letter-spacing:.05em;background:rgba(90,209,255,.06);border-color:rgba(90,209,255,.28);backdrop-filter:blur(8px)}
+.wl-ac::before{background:radial-gradient(circle,rgba(90,209,255,.35),transparent 62%)}
+.wl-snow span{color:var(--cy)}
+::selection{background:rgba(90,209,255,.3)}
+::-webkit-scrollbar{height:6px;width:8px}::-webkit-scrollbar-thumb{background:rgba(140,170,220,.25);border-radius:9px}
+@media(max-width:520px){.card{padding:22px 18px;border-radius:20px}}
+
+/* ===== BOAS-VINDAS 2.0 (núcleo térmico) ===== */
+.wl-snow{display:none}
+.wl-ac{width:min(330px,82vw);margin-bottom:10px}
+.wl-ac::before{width:135%;background:radial-gradient(circle,rgba(47,140,255,.38),rgba(90,209,255,.1) 45%,transparent 65%)}
+.wl-ac svg{filter:drop-shadow(0 0 34px rgba(47,140,255,.35))}
+.wl-r1{transform-origin:150px 150px;animation:wlSpin 60s linear infinite}
+.wl-r2{transform-origin:150px 150px;animation:wlSpin 22s linear infinite reverse}
+@keyframes wlSpin{to{transform:rotate(360deg)}}
+.wl-arc{animation:wlArc 5.2s cubic-bezier(.6,0,.2,1) infinite}
+@keyframes wlArc{0%{stroke-dashoffset:666}55%,85%{stroke-dashoffset:150}100%{stroke-dashoffset:666}}
+.wl-pulse{transform-origin:150px 150px;opacity:0;animation:wlPulseR 3.2s ease-out infinite}
+@keyframes wlPulseR{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+.wl-scan{animation:wlScan 3.4s ease-in-out infinite}
+@keyframes wlScan{0%,100%{transform:translateY(-34px);opacity:0}50%{transform:translateY(34px);opacity:.7}}
+.wl-in h1{font-size:clamp(1.6rem,6.4vw,2.2rem)}
+.wl-in h1 em{filter:drop-shadow(0 0 18px rgba(90,209,255,.35))}
+#welcome::after{content:"";position:absolute;left:50%;top:-20%;width:140%;height:60%;transform:translateX(-50%);background:conic-gradient(from 180deg at 50% 0%,transparent 30%,rgba(90,209,255,.10) 45%,transparent 55%,rgba(216,180,90,.08) 70%,transparent 80%);animation:wlSweep 14s ease-in-out infinite alternate;pointer-events:none}
+@keyframes wlSweep{from{transform:translateX(-50%) rotate(-8deg)}to{transform:translateX(-50%) rotate(8deg)}}
+.wl-go{position:relative;overflow:hidden}
+.wl-go::before,.btn:not(.s)::before{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shine 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes shine{0%,55%{left:-70%}100%{left:130%}}
+/* ===== Refinos gerais ===== */
+.card{--mx:50%;--my:0%}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--mx) var(--my),rgba(90,209,255,.10),transparent 45%);opacity:0;transition:opacity .3s}
+.card:hover::after{opacity:1}
+.card.hero{animation:heroGlow 6s ease-in-out infinite alternate}
+@keyframes heroGlow{from{box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 40px rgba(47,140,255,.14),inset 0 1px 0 rgba(255,255,255,.1)}to{box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 80px rgba(90,209,255,.28),inset 0 1px 0 rgba(255,255,255,.14)}}
+.mast .ic{animation:icFloat 5s ease-in-out infinite}
+@keyframes icFloat{50%{transform:translateY(-3px);box-shadow:0 0 38px rgba(90,209,255,.38),inset 0 1px 0 rgba(255,255,255,.18)}}
+.sub{border-left:2px solid rgba(90,209,255,.4);padding-left:12px}
+.steps span.on::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px var(--cy);vertical-align:1px}
+.opt.sel::before{content:"✓";position:absolute;top:8px;right:10px;font-size:.75rem;color:var(--cy)}
+.nav .btn{min-width:150px}
+@media(max-width:520px){.nav .btn{min-width:0;flex:1}}
+@media(prefers-reduced-motion:reduce){.wl-r1,.wl-r2,.wl-pulse,.wl-scan,#welcome::after,.mast .ic,.card.hero,.btn::before,.wl-go::before{animation:none!important}.wl-arc{animation:none;stroke-dashoffset:150}}
+
+/* ===== BOAS-VINDAS 3.0 (ar-condicionado) ===== */
+.wl-snow{display:block;opacity:.55}
+.wl-ac{width:min(380px,90vw);margin-bottom:6px}
+.wl-ac::before{top:52%;width:130%}
+.wl-ac svg{filter:drop-shadow(0 18px 34px rgba(0,0,0,.45))}
+.wl-st{fill:none;stroke:url(#wS);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:10 18;opacity:0;animation:wlFlow 2.6s linear infinite,wlFade .8s ease 1.1s forwards}
+.wl-sg{fill:none;stroke:#5ad1ff;stroke-width:9;stroke-linecap:round;opacity:0;filter:blur(7px);animation:wlFade2 1.2s ease 1.1s forwards}
+@keyframes wlFlow{to{stroke-dashoffset:-84}}
+@keyframes wlFade{to{opacity:.95}}@keyframes wlFade2{to{opacity:.16}}
+.wl-cone{opacity:0;animation:wlFade .9s ease 1s forwards;animation-name:wlCone}
+@keyframes wlCone{to{opacity:1}}
+.wl-p{fill:#bfeaff;opacity:0;animation:wlDrift 4s ease-in infinite}
+@keyframes wlDrift{0%{transform:translate(0,0);opacity:0}15%{opacity:.9}100%{transform:translate(var(--dx),130px);opacity:0}}
+.wl-f{fill:#d9f3ff;opacity:0;animation:wlDrift 5.5s ease-in infinite}
+.wl-flap{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(.2);animation:wlOpen 1s cubic-bezier(.3,1.4,.5,1) .5s forwards,wlSway 4.5s ease-in-out 1.6s infinite}
+@keyframes wlOpen{to{transform:scaleY(1)}}
+@keyframes wlSway{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.72)}}
+.wl-mist{opacity:0;filter:blur(10px);animation:wlMist 3.2s ease-in-out 1.4s infinite}
+@keyframes wlMist{50%{opacity:.35}}
+.wl-led{animation:wlLed 1.6s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.wl-st,.wl-sg,.wl-cone,.wl-mist{animation:none!important;opacity:.6}.wl-p,.wl-f{animation:none!important}.wl-flap{animation:none!important;transform:none}}
+
+/* ===== RESULTADO: cena do ambiente sendo resfriado ===== */
+.hero .rs{width:min(430px,100%);margin:14px auto 10px;display:block;filter:drop-shadow(0 18px 28px rgba(30,60,120,.18))}
+.rs-cool{transform-origin:190px 56px;transform:scale(0);animation:rsCool 3.6s cubic-bezier(.35,.1,.2,1) .7s forwards}
+@keyframes rsCool{to{transform:scale(1)}}
+.rs-a{fill:none;stroke:#2ba6e6;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:9 14;opacity:0;animation:rsFlow 2s linear infinite,rsIn .6s ease forwards;animation-delay:inherit}
+@keyframes rsFlow{to{stroke-dashoffset:-69}}@keyframes rsIn{to{opacity:.95}}
+.rs-flap{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(.15);animation:rsOpen .9s cubic-bezier(.3,1.4,.5,1) .3s forwards}
+@keyframes rsOpen{to{transform:scaleY(1)}}
+.rs-sun{animation:rsSun 3s ease-in-out infinite}@keyframes rsSun{50%{transform:scale(1.12)}}
+.rs-rays{animation:rsSpin 14s linear infinite}@keyframes rsSpin{to{transform:rotate(360deg)}}
+.rs-t0{animation:rsOut .5s ease 1.6s forwards}.rs-t1{opacity:0;animation:rsInT .6s ease 2.4s forwards}
+@keyframes rsOut{to{opacity:0}}@keyframes rsInT{to{opacity:1}}
+.rs-hg{fill:#ff6b4a;transform-box:fill-box;transform-origin:50% 100%;animation:rsMerc 3.4s cubic-bezier(.4,0,.2,1) .8s forwards}
+.rs-bulb{fill:#ff6b4a;animation:rsBulb 3.4s ease .8s forwards}
+@keyframes rsMerc{to{transform:scaleY(.4);fill:#2ba6e6}}@keyframes rsBulb{to{fill:#2ba6e6}}
+.rs-f{fill:#4db6ee;opacity:0;font-size:12px;animation:rsDrift 4.4s ease-in infinite}
+@keyframes rsDrift{0%{transform:translate(0,0);opacity:0}20%{opacity:.9}100%{transform:translate(var(--dx),78px);opacity:0}}
+.rs-led{animation:wlLed 1.6s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.rs-cool{animation:none;transform:none}.rs-a,.rs-f,.rs-sun,.rs-rays,.rs-led{animation:none}.rs-a{opacity:.9}.rs-flap{animation:none;transform:none}.rs-t0{display:none}.rs-t1{animation:none;opacity:1}.rs-hg{animation:none;transform:scaleY(.4);fill:#2ba6e6}.rs-bulb{animation:none;fill:#2ba6e6}}
+
+/* ===== TEMA CLARO ===== */
+:root{--bg:#f3f7fd;--card:#ffffff;--tx:#0e1a33;--mu:#5a6a87;--ln:rgba(30,60,120,.14);--g:#b9892a;--gd:#8f6710;--cy:#0b86c9;--cy2:#2563eb;--ok:#0e9a68;--wa:#c27a14;--er:#d13f58;color-scheme:light}
+html{background:var(--bg)}
+body{background:radial-gradient(60% 40% at 88% -5%,rgba(37,99,235,.14),transparent 70%),radial-gradient(50% 35% at 4% 6%,rgba(185,137,42,.12),transparent 70%),radial-gradient(70% 40% at 50% 110%,rgba(11,134,201,.10),transparent 70%),var(--bg);color:var(--tx)}
+body::before{background-image:linear-gradient(rgba(30,60,120,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(30,60,120,.06) 1px,transparent 1px)}
+h1{background:linear-gradient(100deg,#0e1a33 15%,#1d4ed8 65%,#a77a1c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mast .ic{background:linear-gradient(145deg,#fff,#e8f2ff);border-color:rgba(11,134,201,.35);box-shadow:0 10px 26px rgba(37,99,235,.18),inset 0 1px 0 #fff}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(241,247,255,.88));box-shadow:0 18px 44px rgba(30,60,120,.12),0 1px 0 rgba(255,255,255,.9) inset;border-color:var(--ln)}
+.card::before{background:linear-gradient(90deg,transparent,rgba(11,134,201,.7),rgba(185,137,42,.7),transparent)}
+.card::after{background:radial-gradient(420px circle at var(--mx) var(--my),rgba(11,134,201,.08),transparent 45%)}
+.prog{background:rgba(30,60,120,.1)}.prog i{box-shadow:0 0 12px rgba(11,134,201,.45)}
+.steps span{background:rgba(255,255,255,.75);color:var(--mu)}
+.steps span.on{background:linear-gradient(135deg,#0b86c9,#2563eb);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(37,99,235,.3)}
+.steps span.on::before{background:#fff;box-shadow:0 0 8px #fff}
+label{color:var(--tx);opacity:.88}
+input,select{background:#fff;color:var(--tx);border-color:rgba(30,60,120,.2)}
+input:focus,select:focus{box-shadow:0 0 0 3px rgba(11,134,201,.18)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20'%3E%3Cpath d='M5 8l5 5 5-5' fill='none' stroke='%230b86c9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.opt{background:rgba(255,255,255,.8);color:var(--tx)}
+.opt:hover{background:#f0f8ff;border-color:rgba(11,134,201,.55);box-shadow:0 8px 22px rgba(30,60,120,.12)}
+.opt.sel{background:linear-gradient(180deg,#e3f3ff,#f3faff);box-shadow:0 0 0 1px var(--cy) inset,0 8px 22px rgba(11,134,201,.16)}
+.area{background:#eaf6ff;border-color:rgba(11,134,201,.3);color:var(--cy)}
+.btn{box-shadow:0 10px 24px rgba(185,137,42,.28),inset 0 1px 0 rgba(255,255,255,.5);color:#1a1405}
+.btn.s{background:#fff;color:var(--tx);border-color:rgba(30,60,120,.2)}
+.btn.s:hover{color:var(--cy);border-color:var(--cy);box-shadow:0 6px 18px rgba(11,134,201,.14)}
+.weather-box{background:linear-gradient(135deg,#eaf4ff,#fff);border-color:rgba(11,134,201,.25)}
+.weather-error{color:#a3283c;background:rgba(209,63,88,.07)}
+.al{background:#fff8ea;color:var(--tx)}.al.ok{background:#eafaf3}.al.er{background:#fff0f2}
+.bar{background:rgba(30,60,120,.1)}.bar i{background:linear-gradient(90deg,#9db0cf,#7f95bd)}
+.cap.rec{color:var(--tx)}.cap.rec .bar i{box-shadow:0 0 12px rgba(11,134,201,.45)}
+td,.gr-tab td{color:var(--tx)}
+.ln b{color:var(--cy)}.ln.tot b{color:var(--gd)}
+.sales-grid>div{background:#f7faff}.sales-grid strong{color:var(--gd)}
+.card.hero{background:radial-gradient(75% 55% at 50% 0%,rgba(37,99,235,.14),transparent 70%),linear-gradient(165deg,#ffffff,#eaf3ff);border:1px solid rgba(11,134,201,.3);animation:heroGlowL 6s ease-in-out infinite alternate}
+@keyframes heroGlowL{from{box-shadow:0 24px 60px rgba(30,60,120,.14),0 0 0 rgba(11,134,201,0)}to{box-shadow:0 24px 60px rgba(30,60,120,.18),0 0 50px rgba(11,134,201,.22)}}
+.hero #calc{color:var(--tx)}
+.hero .k{color:var(--cy)}
+.hero .big{background:linear-gradient(180deg,#0e2a66,#0b86c9 70%,#a77a1c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 16px rgba(11,134,201,.2))}
+.hero .big small{-webkit-text-fill-color:var(--gd);color:var(--gd)}
+.hero .chips span{background:#fff;border-color:rgba(11,134,201,.28);color:var(--tx)}
+.gr-tw,.gr-leg,.gr-so,.gr-c{background:rgba(255,255,255,.75)}
+.gr-tab tbody tr:hover{background:#eef7ff}
+.gr-c .ic{background:#eaf6ff}
+.gr-warn{background:#fff8ea;color:var(--tx)}
+.lv i{background:rgba(30,60,120,.12)}.lv i.on{box-shadow:0 0 6px rgba(11,134,201,.4)}
+.gr-so:hover,.gr-c:hover{box-shadow:0 14px 30px rgba(30,60,120,.14)}
+/* boas-vindas claro */
+#welcome{background:radial-gradient(70% 45% at 82% 0%,rgba(37,99,235,.16),transparent 70%),radial-gradient(60% 40% at 8% 100%,rgba(185,137,42,.14),transparent 70%),#f3f7fd}
+#welcome::before{background-image:linear-gradient(rgba(30,60,120,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(30,60,120,.07) 1px,transparent 1px)}
+#welcome::after{background:conic-gradient(from 180deg at 50% 0%,transparent 30%,rgba(11,134,201,.10) 45%,transparent 55%,rgba(185,137,42,.08) 70%,transparent 80%)}
+.wl-in h1{color:var(--tx)}
+.wl-chips span{background:rgba(255,255,255,.8);color:var(--tx);border-color:rgba(11,134,201,.25)}
+.wl-ac svg{filter:drop-shadow(0 16px 26px rgba(30,60,120,.22))}
+.wl-st{stroke:#2ba6e6}.wl-sg{stroke:#2ba6e6}.wl-p{fill:#6cc6f2}.wl-f{fill:#5cbcf0}
+.wl-snow span{color:#7ac7f2}
+::-webkit-scrollbar-thumb{background:rgba(30,60,120,.25)}
+#welcome::before{display:none}
+body::before{display:none!important}
+select{background-repeat:no-repeat!important;background-position:right 14px center!important;background-size:14px 14px!important}
+
+/* ===== sem amarelo em textos e botões ===== */
+:root{--g:#2563eb;--gd:#1d4ed8}
+.card.hero,.card.hero div,.card.hero span{color:var(--tx)}
+.card.hero .k{color:var(--cy)}
+.card.hero .big,.card.hero .big span{color:transparent}
+.hero .big{background:linear-gradient(180deg,#0e2a66,#0b86c9);-webkit-background-clip:text;background-clip:text}
+.hero .big small{-webkit-text-fill-color:#0b6fb0;color:#0b6fb0}
+.card.hero .chips span{color:var(--tx)}
+.card.hero .big #calc,.card.hero #calc{color:var(--tx);-webkit-text-fill-color:var(--tx)}
+h1{background:linear-gradient(100deg,#0e1a33 15%,#1d4ed8 70%,#0b86c9);-webkit-background-clip:text;background-clip:text}
+.btn,.btn:not(.s),#vb,.wl-go{background:linear-gradient(135deg,#1d6fe0,#0b86c9)!important;color:#fff!important;box-shadow:0 10px 24px rgba(29,111,224,.32),inset 0 1px 0 rgba(255,255,255,.3)!important}
+.btn:hover{box-shadow:0 12px 30px rgba(29,111,224,.45),inset 0 1px 0 rgba(255,255,255,.35)!important}
+.btn.s{background:#fff!important;color:var(--tx)!important;box-shadow:none!important}
+.btn.s:hover{color:var(--cy)!important}
+.card::before{background:linear-gradient(90deg,transparent,rgba(11,134,201,.7),rgba(37,99,235,.7),transparent)}
+.ln.tot b,.sales-grid strong,h3{color:var(--cy)}
+.opt.sel::before{color:var(--cy)}
+.gr-note,.gr-warn b{color:var(--cy)}.gr-warn{border-left-color:var(--cy);background:#eef7ff}
+.al{background:#f3f8ff;border-color:rgba(37,99,235,.2);border-left-color:var(--cy2)}.al.ok{background:#eafaf3;border-left-color:var(--ok)}.al.er{background:#fff0f2;border-left-color:var(--er)}
+.sales-card{border-color:rgba(11,134,201,.35)!important}
+.mast .ic{border-color:rgba(11,134,201,.35)}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head><body><section id="welcome" aria-label="Boas-vindas">
+<div class="wl-snow" aria-hidden="true"></div>
+<div class="wl-in">
+<div class="wl-ac" aria-hidden="true"><svg viewBox="0 0 360 270" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="wB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#e3ecf8"/><stop offset="1" stop-color="#b9c9e0"/></linearGradient>
+<linearGradient id="wS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff" stop-opacity=".95"/><stop offset="1" stop-color="#5ad1ff" stop-opacity="0"/></linearGradient>
+<linearGradient id="wCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ad1ff" stop-opacity=".30"/><stop offset="1" stop-color="#2f8cff" stop-opacity="0"/></linearGradient>
+<linearGradient id="wF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecd18a"/><stop offset="1" stop-color="#b98f1c"/></linearGradient></defs>
+<path class="wl-cone" d="M40 116H320L372 270H-12Z" fill="url(#wCone)"/>
+<g class="wl-air"><path class="wl-st" style="animation-delay:0.00s" d="M62 118C62 150 41 175 -3 262"/><path class="wl-sg" d="M62 118C62 150 41 175 -3 262"/><path class="wl-st" style="animation-delay:-0.45s" d="M100 118C100 150 86 175 56 262"/><path class="wl-sg" d="M100 118C100 150 86 175 56 262"/><path class="wl-st" style="animation-delay:-0.90s" d="M138 118C138 150 130 175 115 262"/><path class="wl-sg" d="M138 118C138 150 130 175 115 262"/><path class="wl-st" style="animation-delay:-1.35s" d="M176 118C176 150 175 175 174 262"/><path class="wl-sg" d="M176 118C176 150 175 175 174 262"/><path class="wl-st" style="animation-delay:-1.80s" d="M214 118C214 150 220 175 233 262"/><path class="wl-sg" d="M214 118C214 150 220 175 233 262"/><path class="wl-st" style="animation-delay:-2.25s" d="M252 118C252 150 265 175 292 262"/><path class="wl-sg" d="M252 118C252 150 265 175 292 262"/><path class="wl-st" style="animation-delay:-2.70s" d="M290 118C290 150 310 175 350 262"/><path class="wl-sg" d="M290 118C290 150 310 175 350 262"/></g><g class="wl-pts"><circle class="wl-p" cx="215" cy="122" r="2.8" style="--dx:7px;animation-delay:-2.60s;animation-duration:3.2s"/><circle class="wl-p" cx="98" cy="122" r="1.4" style="--dx:-44px;animation-delay:-3.64s;animation-duration:3.5s"/><circle class="wl-p" cx="94" cy="122" r="2.8" style="--dx:-44px;animation-delay:-0.28s;animation-duration:3.2s"/><circle class="wl-p" cx="267" cy="122" r="1.4" style="--dx:30px;animation-delay:-3.79s;animation-duration:4.6s"/><circle class="wl-p" cx="81" cy="122" r="2.8" style="--dx:-45px;animation-delay:-0.20s;animation-duration:3.6s"/><circle class="wl-p" cx="118" cy="122" r="2.8" style="--dx:-36px;animation-delay:-0.58s;animation-duration:3.3s"/><circle class="wl-p" cx="207" cy="122" r="1.8" style="--dx:16px;animation-delay:-0.41s;animation-duration:4.4s"/><circle class="wl-p" cx="146" cy="122" r="1.4" style="--dx:-20px;animation-delay:-2.19s;animation-duration:3.2s"/><circle class="wl-p" cx="80" cy="122" r="1.8" style="--dx:-45px;animation-delay:-1.99s;animation-duration:4.3s"/><circle class="wl-p" cx="210" cy="122" r="2.8" style="--dx:15px;animation-delay:-1.45s;animation-duration:3.6s"/><circle class="wl-p" cx="142" cy="122" r="1.8" style="--dx:-11px;animation-delay:-0.33s;animation-duration:3.8s"/><circle class="wl-p" cx="303" cy="122" r="2.2" style="--dx:75px;animation-delay:-2.92s;animation-duration:3.7s"/><circle class="wl-p" cx="87" cy="122" r="2.8" style="--dx:-57px;animation-delay:-0.66s;animation-duration:3.9s"/><circle class="wl-p" cx="300" cy="122" r="1.4" style="--dx:59px;animation-delay:-3.85s;animation-duration:3.2s"/><circle class="wl-p" cx="210" cy="122" r="2.2" style="--dx:11px;animation-delay:-2.38s;animation-duration:4.4s"/><circle class="wl-p" cx="283" cy="122" r="1.4" style="--dx:39px;animation-delay:-3.78s;animation-duration:4.2s"/><circle class="wl-p" cx="83" cy="122" r="2.2" style="--dx:-61px;animation-delay:-2.59s;animation-duration:5.5s"/><circle class="wl-p" cx="278" cy="122" r="2.8" style="--dx:44px;animation-delay:-3.55s;animation-duration:3.9s"/><text class="wl-f" x="78" y="124" font-size="11" style="--dx:-51px;animation-delay:0.0s">❄</text><text class="wl-f" x="128" y="124" font-size="14" style="--dx:-26px;animation-delay:-1.1s">❄</text><text class="wl-f" x="190" y="124" font-size="17" style="--dx:5px;animation-delay:-2.2s">❄</text><text class="wl-f" x="236" y="124" font-size="11" style="--dx:28px;animation-delay:-3.3s">❄</text><text class="wl-f" x="284" y="124" font-size="14" style="--dx:52px;animation-delay:-4.4s">❄</text></g>
+<rect x="30" y="18" width="300" height="94" rx="28" fill="rgba(90,209,255,.25)" filter="blur(0)" opacity=".0"/>
+<rect x="30" y="16" width="300" height="96" rx="28" fill="url(#wB)" stroke="#5ad1ff" stroke-opacity=".7" stroke-width="1.6"/>
+<path d="M44 24h272" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linecap="round"/>
+<g stroke="#b4c4dc" stroke-width="3" stroke-linecap="round"><path d="M52 38h120" /><path d="M52 48h120" /><path d="M52 58h120" /></g>
+<text x="52" y="84" font-family="JetBrains Mono,ui-monospace,monospace" font-size="9" letter-spacing="3" fill="#4a5f82">INVERTER</text>
+<circle class="wl-led" cx="150" cy="80" r="3" fill="#2ee6a6"/>
+<rect x="206" y="34" width="104" height="52" rx="14" fill="#04101f" stroke="#5ad1ff" stroke-opacity=".6"/>
+<text x="258" y="49" text-anchor="middle" font-family="JetBrains Mono,ui-monospace,monospace" font-size="7.5" letter-spacing="2" fill="#5ad1ff">❄ COOL · AUTO</text>
+<text id="wtemp" x="258" y="78" text-anchor="middle" font-family="Space Grotesk,system-ui,sans-serif" font-size="30" font-weight="600" fill="#8fe3ff" style="filter:drop-shadow(0 0 8px rgba(90,209,255,.8))">30°</text>
+<rect class="wl-flap" x="40" y="106" width="280" height="12" rx="6" fill="url(#wF)"/>
+<ellipse class="wl-mist" cx="180" cy="262" rx="150" ry="10" fill="#5ad1ff"/>
+</svg></div>
+<h1>Qual o ar-condicionado <em>ideal</em> para o seu ambiente?</h1>
+<p>Responda algumas perguntas rápidas e descubra a capacidade certa em BTUs, já considerando o calor da sua cidade.</p>
+<div class="wl-chips"><span>⏱️ Leva ~2 minutos</span><span>🌡️ Clima real da cidade</span><span>📄 Resultado em PDF</span></div>
+<button class="btn wl-go" id="wgo" type="button">Começar →</button>
+</div></section>
+<div class="w">
+<header class="mast"><div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#04183a" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.6l3 2.4 3-2.4M9 20.4l3-2.4 3 2.4M3.4 10.5l3.6.3-.6-3.7M20.6 13.5l-3.6-.3.6 3.7M3.4 13.5l3.6-.3-.6 3.7M20.6 10.5l-3.6.3.6-3.7"/></svg></div>
+<div><h1>Dimensionamento de ar&#8209;condicionado</h1></div></header>
+<p class="sub">Calcule os BTUs necessários e veja como o resultado foi obtido.</p>
+<div id="wiz">
+<div class="st"><b id="stl">Etapa 1 de 6</b><span id="stn"></span></div>
+<div class="prog"><i id="pg"></i></div><div class="steps" id="stps"></div>
+
+<div class="card" data-s="0"><h2>01 · Tipo de aparelho</h2>
+<p class="small" style="margin:-4px 0 12px">Escolha o modelo que será instalado. O cálculo e a sugestão seguem essa escolha.</p>
+<div class="g2" id="ap"></div><div class="al" id="apd" style="display:none"></div></div>
+
+<div class="card hid" data-s="1"><h2>02 · Ambiente</h2>
+<div class="g2" id="fin"></div>
+<label for="tipo">Tipo de ambiente</label><select id="tipo"></select></div>
+
+<div class="card hid" data-s="2"><h2>03 · Dimensões</h2>
+<div class="g2"><div><label for="c">Comprimento (m)</label><input id="c" type="number" min="0.5" step="0.1" inputmode="decimal"></div>
+<div><label for="l">Largura (m)</label><input id="l" type="number" min="0.5" step="0.1" inputmode="decimal"></div>
+</div>
+<label style="margin-top:14px">Altura do teto <span class="small">(não sabe? deixe como está, o padrão serve para a maioria dos casos)</span></label>
+<div class="g2" id="hopt"></div>
+<div class="small" id="hmsg" style="margin-top:8px"></div>
+<p style="margin:10px 0 0"><button class="btn s" id="nsh" type="button">📏 Sei a medida exata</button></p>
+<div id="hbox" class="hid"><label for="h" style="margin-top:10px">Pé-direito (m)</label><input id="h" type="number" min="2" max="6" step="0.05" value="2.7" inputmode="decimal">
+<p class="small" style="margin:10px 0 0">💡 <b>Dica:</b> a porta padrão tem cerca de 2,10 m. Se o teto fica ~50 cm acima do topo da porta, o pé-direito é ≈ 2,60 m; ~60 cm ≈ 2,70 m; ~90 cm ≈ 3,00 m.</p></div>
+<div class="area" id="areaTx">Área: — m²</div></div>
+
+<div class="card hid" data-s="3"><h2>04 · Ocupação</h2>
+<label for="p">Quantas pessoas normalmente permanecem no ambiente?</label><input id="p" type="number" min="1" max="100" value="2" inputmode="numeric">
+<h3>Janelas</h3>
+<div class="g2"><div><label for="jq">Quantidade</label><input id="jq" type="number" min="0" max="20" value="1"></div>
+<div><label for="jt">Tamanho aproximado</label><select id="jt"></select></div>
+<div><label for="js">Quantas recebem sol direto?</label><input id="js" type="number" min="0" max="20" value="0"></div></div></div>
+
+<div class="card hid" data-s="4"><h2>05 · Sol e clima</h2>
+<label>Incidência de sol</label><div class="g2" id="sol"></div>
+<label>Período em que o sol incide</label><div class="g2" id="per"></div>
+<label for="uf">Estado</label><select id="uf"></select>
+<label for="cid">Cidade</label><select id="cid"></select><div id="weatherBox" class="weather-box" aria-live="polite"><div class="weather-empty">Selecione uma cidade para carregar a temperatura em tempo real.</div></div>
+<p style="margin:10px 0 0"><button class="btn s" id="geo" type="button">📍 Usar minha localização</button></p>
+<div id="designBox" class="weather-box" style="margin-top:10px"></div>
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="ext">Considerar condição climática <b>mais severa</b></label>
+<div class="small" id="geoMsg"></div></div>
+
+<div class="card hid" data-s="5"><h2>06 · Equipamentos e outros fatores</h2><div id="eqs"></div><h3>Outros fatores</h3><div id="oth"></div></div>
+
+<div class="err" id="err" role="alert"></div>
+<div class="nav"><button class="btn s" id="prev" type="button">← Voltar</button><button class="btn" id="next" type="button">Continuar →</button></div>
+</div>
+<div id="res" class="hid"></div>
+
+<section class="gr" id="guia-rapido" aria-labelledby="gr-t">
+<div class="card gr-card rv">
+<h2 id="gr-t">Guia rápido de BTUs</h2>
+<p class="gr-lead">Referência inicial para dimensionamento de ar-condicionado.</p>
+<p class="gr-txt">A capacidade necessária depende não apenas da área, mas também da quantidade de pessoas, incidência solar, equipamentos, iluminação, janelas, cobertura e condições climáticas da região.</p>
+<p class="gr-note">Para uma recomendação mais precisa, utilize o cálculo completo.</p>
+<div class="tw gr-tw" tabindex="0" role="region" aria-label="Tabela de referência de BTUs por área">
+<table class="gr-tab"><caption>Faixas de referência por área do ambiente</caption>
+<thead><tr><th scope="col">Área</th><th scope="col">Residencial</th><th scope="col">Comercial</th></tr></thead>
+<tbody>
+<tr><th scope="row">Até 10 m²</th><td>7.000–9.000 BTUs</td><td>9.000–12.000 BTUs</td></tr>
+<tr><th scope="row">10–15 m²</th><td>9.000–12.000 BTUs</td><td>12.000–18.000 BTUs</td></tr>
+<tr><th scope="row">15–20 m²</th><td>12.000–18.000 BTUs</td><td>18.000–24.000 BTUs</td></tr>
+<tr><th scope="row">20–30 m²</th><td>18.000–24.000 BTUs</td><td>18.000–30.000 BTUs</td></tr>
+<tr><th scope="row">30–40 m²</th><td>24.000–30.000 BTUs</td><td>30.000–36.000 BTUs</td></tr>
+<tr><th scope="row">40–50 m²</th><td>30.000–36.000 BTUs</td><td>36.000–48.000 BTUs</td></tr>
+<tr><th scope="row">50–60 m²</th><td>36.000–48.000 BTUs</td><td>48.000–60.000 BTUs</td></tr>
+</tbody></table></div>
+<p class="gr-hint" aria-hidden="true">Deslize a tabela para o lado para ver todas as colunas.</p>
+<div class="gr-leg">
+<button class="gr-tg" type="button" id="gr-tg" aria-expanded="true" aria-controls="gr-lp"><span>Como interpretar esta tabela</span><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<div class="gr-lp" id="gr-lp"><div><ul>
+<li>Ambientes com pouco sol e baixa ocupação tendem a ficar próximos da faixa inferior.</li>
+<li>Ambientes com sol direto, especialmente no período da tarde, podem exigir maior capacidade.</li>
+<li>Ambientes comerciais podem exigir mais capacidade devido à maior circulação de pessoas, iluminação, equipamentos e abertura frequente de portas.</li>
+<li>Muitos equipamentos eletrônicos também aumentam a carga térmica.</li>
+<li>Para uma recomendação mais precisa, utilize o cálculo completo da ferramenta.</li>
+</ul></div></div></div>
+</div>
+
+<div class="card gr-card rv">
+<h2>☀️ Incidência solar</h2>
+<div class="gr-sol">
+<div class="gr-so"><span class="lv" role="img" aria-label="Nível 1 de 4"><i class="on"></i><i></i><i></i><i></i></span><b>Sem sol direto</b><p>Menor influência térmica.</p></div>
+<div class="gr-so"><span class="lv" role="img" aria-label="Nível 2 de 4"><i class="on"></i><i class="on"></i><i></i><i></i></span><b>Sol da manhã</b><p>Influência moderada.</p></div>
+<div class="gr-so"><span class="lv" role="img" aria-label="Nível 3 de 4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>Sol da tarde</b><p>Maior ganho de calor.</p></div>
+<div class="gr-so"><span class="lv" role="img" aria-label="Nível 4 de 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>Sol intenso durante grande parte do dia</b><p>Alta influência térmica.</p></div>
+</div>
+<p class="gr-txt" style="margin:14px 0 0">Cobertura ou laje diretamente exposta ao sol também pode aumentar a carga térmica do ambiente.</p>
+</div>
+
+<div class="card gr-card rv">
+<h2>O que altera o cálculo?</h2>
+<div class="gr-grid">
+<div class="gr-c"><span class="ic">📐</span><b>Área</b><p>O tamanho do ambiente é o ponto de partida.</p></div>
+<div class="gr-c"><span class="ic">👥</span><b>Pessoas</b><p>Quanto maior a ocupação, maior a carga térmica.</p></div>
+<div class="gr-c"><span class="ic">☀️</span><b>Sol</b><p>A incidência solar aumenta o ganho de calor.</p></div>
+<div class="gr-c"><span class="ic">💻</span><b>Equipamentos</b><p>Computadores, TVs e outros equipamentos liberam calor.</p></div>
+<div class="gr-c"><span class="ic">💡</span><b>Iluminação</b><p>A iluminação também contribui para a carga térmica.</p></div>
+<div class="gr-c"><span class="ic">🌡️</span><b>Clima</b><p>A temperatura e as características climáticas da região influenciam o dimensionamento.</p></div>
+</div>
+</div>
+
+<div class="card gr-card gr-end rv">
+<p class="gr-warn"><b>Importante:</b> esta tabela é uma referência rápida e não substitui o cálculo detalhado de carga térmica. A necessidade real pode variar conforme área, pé-direito, quantidade de pessoas, incidência solar, janelas, cobertura, iluminação, equipamentos e condições climáticas da região.</p>
+<p class="gr-cta-tx">Para obter uma recomendação mais adequada, utilize o Cálculo Completo.</p>
+<button class="btn" id="gr-cta" type="button">Calcular BTUs com mais precisão →</button>
+</div>
+</section>
+<p class="small">Este cálculo é uma estimativa para dimensionamento inicial. O resultado pode variar conforme características construtivas, orientação solar, isolamento térmico, equipamentos, ventilação, ocupação e condições climáticas. Para projetos de climatização de maior porte, recomenda-se avaliação técnica.</p>
+</div>
+<script>
+/* ===== CONFIGURAÇÃO (edite aqui) ===== */
+const CONFIG={
+ capacidadesBTU:[7000,9000,12000,18000,24000,30000,36000,48000,60000],
+ aparelhos:{ // capacidades comerciais típicas por tipo (edite conforme seu catálogo)
+  hiwall:{l:'Hi-wall',e:'❄️',d:'Na parede · o mais comum',caps:[7000,9000,12000,18000,24000,30000,36000],area:35},
+  pisoteto:{l:'Piso-teto',e:'🌬️',d:'Salas amplas e comércio',caps:[18000,24000,30000,36000,48000,60000]},
+  cassete:{l:'Cassete',e:'🔲',d:'Embutido no forro',caps:[12000,18000,24000,30000,36000,48000,60000]},
+  multisplit:{l:'Multisplit',e:'🧩',d:'1 condensadora, vários ambientes',caps:[7000,9000,12000,18000,24000]}},
+ multi:{cond:[18000,24000,30000,36000,48000,60000],maxEvap:{18000:2,24000:3,30000:4,36000:4,48000:5,60000:5},simult:0.8}, // simult: condensadora = soma das evaporadoras × 0,80 (confirme na tabela do fabricante)
+ margemTecnica:0.05,          // margem de segurança sobre a carga estimada
+ alertaProximoLimite:0.06,    // alerta se a necessidade está a menos de 6% abaixo da capacidade
+ base:{residencial:600,comercial:650}, // BTU/h por m² (prática de mercado; inclui 1ª–2ª pessoa)
+ pessoasInclusas:{residencial:2,comercial:1}, btuPorPessoa:600,
+ peDireitoRef:2.7,            // acima disso a carga base cresce proporcionalmente (máx. x1.5)
+ sol:{ // multiplicador da carga base
+  intensidade:{nenhum:{l:'Sem sol direto',e:'🌙',f:1.00},pouco:{l:'Pouco sol',e:'⛅',f:1.05},moderado:{l:'Sol moderado',e:'🌤️',f:1.15},intenso:{l:'Sol intenso',e:'☀️',f:1.25}},
+  periodo:{sombra:{l:'Sombreado',f:1.00,i:'Baixa'},manha:{l:'Sol da manhã',f:1.00,i:'Moderada'},tarde:{l:'Sol da tarde',f:1.08,i:'Alta'}}},
+ janelaM2:{pequena:1,media:2,grande:3.5}, btuPorM2JanelaSol:250,
+ clima:{tRef:29,pctPorGrau:0.02,maxPct:0.20,maxPctExtremo:0.30}, // +2% da carga base por °C acima de 29 °C; teto +20% (padrão) ou +30% (modo dias extremos). AJUSTE CONFORME SUA EXPERIÊNCIA
+ equipamentos:{tv:{l:'TV',b:600},pc:{l:'Computador (desktop)',b:600},nb:{l:'Notebook',b:300},imp:{l:'Impressora',b:400},eletro:{l:'Outros eletrônicos',b:300},luz:{l:'Iluminação intensa (grupo)',b:500},outro:{l:'Outros equipamentos',b:600}},
+ outros:{ // pct = % sobre subtotal; btu = valor fixo
+  porta:{l:'Porta abrindo com frequência',pct:{residencial:0.05,comercial:0.08}},
+  circ:{l:'Muita circulação de pessoas',pct:{residencial:0.05,comercial:0.08}},
+  laje:{l:'Teto/laje exposto ao sol',pct:{residencial:0.15,comercial:0.15}},
+  calor:{l:'Cozinha ou equipamento que gera calor',btu:1500},
+  carga:{l:'Ambiente com grande carga térmica',pct:{residencial:0.10,comercial:0.10}}},
+ tipos:{residencial:['Quarto','Suíte','Sala','Sala de estar','Sala de TV','Escritório','Cozinha','Outro'],comercial:['Escritório','Loja','Consultório','Sala comercial','Recepção','Salão','Restaurante','Outro']},
+ tamanhosJanela:{pequena:'Pequena (~1 m²)',media:'Média (~2 m²)',grande:'Grande (~3,5 m²)'}
+};
+/* ===== CIDADES: [UF, cidade, Tmax média do mês mais quente °C (aprox. INMET), lat, lon] ===== */
+const CIDADES=[["AC", "Rio Branco", 32, -9.9754, -67.8249], ["AC", "Cruzeiro do Sul", 32, -7.6276, -72.6756], ["AC", "Sena Madureira", 33, -9.0659, -68.6571], ["AC", "Tarauacá", 33, -8.1614, -70.7656], ["AL", "Maceió", 30, -9.6658, -35.7353], ["AL", "Arapiraca", 31, -9.7525, -36.6611], ["AL", "Rio Largo", 30, -9.4783, -35.8533], ["AL", "Palmeira dos Índios", 30, -9.4057, -36.6328], ["AP", "Macapá", 32, 0.0349, -51.0694], ["AP", "Santana", 32, -0.055, -51.1729], ["AP", "Oiapoque", 32, 3.84, -51.8331], ["AP", "Laranjal do Jari", 33, 0.8049, -52.4531], ["AM", "Manaus", 32, -3.119, -60.0217], ["AM", "Parintins", 32, -2.6287, -56.7351], ["AM", "Itacoatiara", 33, -3.1431, -58.4442], ["AM", "Tefé", 32, -3.3542, -64.7104], ["BA", "Salvador", 30, -12.9777, -38.5016], ["BA", "Feira de Santana", 31, -12.2664, -38.9663], ["BA", "Vitória da Conquista", 28, -14.8615, -40.8442], ["BA", "Barreiras", 33, -12.1439, -44.9968], ["CE", "Fortaleza", 31, -3.7319, -38.5267], ["CE", "Juazeiro do Norte", 32, -7.2131, -39.3151], ["CE", "Sobral", 33, -3.6861, -40.3498], ["CE", "Crato", 32, -7.2306, -39.4094], ["DF", "Brasília", 28, -15.7939, -47.8828], ["DF", "Ceilândia", 29, -15.815, -48.1083], ["DF", "Taguatinga", 29, -15.836, -48.055], ["DF", "Planaltina", 28, -15.452, -47.614], ["ES", "Vitória", 30, -20.3155, -40.3128], ["ES", "Vila Velha", 30, -20.3297, -40.2925], ["ES", "Serra", 31, -20.1286, -40.3074], ["ES", "Linhares", 31, -19.3911, -40.0722], ["GO", "Goiânia", 32, -16.6869, -49.2648], ["GO", "Anápolis", 31, -16.3281, -48.953], ["GO", "Rio Verde", 31, -17.7923, -50.9199], ["GO", "Aparecida de Goiânia", 32, -16.8198, -49.2469], ["MA", "São Luís", 31, -2.5387, -44.2825], ["MA", "Imperatriz", 33, -5.5185, -47.4777], ["MA", "Caxias", 34, -4.8651, -43.3617], ["MA", "Bacabal", 34, -4.2242, -44.7833], ["MT", "Cuiabá", 35, -15.6014, -56.0979], ["MT", "Várzea Grande", 35, -15.6467, -56.132], ["MT", "Rondonópolis", 35, -16.4708, -54.6356], ["MT", "Sinop", 34, -11.8642, -55.509], ["MS", "Campo Grande", 32, -20.4697, -54.6201], ["MS", "Dourados", 32, -22.2231, -54.812], ["MS", "Três Lagoas", 33, -20.7849, -51.7], ["MS", "Corumbá", 35, -19.008, -57.651], ["MG", "Belo Horizonte", 29, -19.9167, -43.9345], ["MG", "Uberlândia", 31, -18.9146, -48.2754], ["MG", "Juiz de Fora", 27, -21.7642, -43.3503], ["MG", "Montes Claros", 31, -16.7282, -43.8578], ["PA", "Belém", 32, -1.4558, -48.4902], ["PA", "Ananindeua", 32, -1.3656, -48.3722], ["PA", "Santarém", 33, -2.4431, -54.7083], ["PA", "Marabá", 34, -5.3686, -49.1178], ["PB", "João Pessoa", 31, -7.1195, -34.845], ["PB", "Campina Grande", 30, -7.2306, -35.8811], ["PB", "Patos", 33, -7.0244, -37.2801], ["PB", "Santa Rita", 31, -7.1139, -34.978], ["PR", "Curitiba", 27, -25.4284, -49.2733], ["PR", "Londrina", 30, -23.3103, -51.1628], ["PR", "Maringá", 30, -23.4205, -51.9333], ["PR", "Foz do Iguaçu", 31, -25.5163, -54.5854], ["PE", "Recife", 31, -8.0476, -34.877], ["PE", "Jaboatão dos Guararapes", 31, -8.1128, -35.0147], ["PE", "Caruaru", 31, -8.283, -35.9761], ["PE", "Petrolina", 35, -9.3891, -40.5031], ["PI", "Teresina", 35, -5.0892, -42.8016], ["PI", "Parnaíba", 34, -2.9048, -41.7767], ["PI", "Picos", 35, -7.0765, -41.4669], ["PI", "Floriano", 35, -6.7718, -43.0241], ["RJ", "Rio de Janeiro", 30, -22.9068, -43.1729], ["RJ", "Niterói", 30, -22.8832, -43.1034], ["RJ", "Campos dos Goytacazes", 31, -21.7622, -41.3181], ["RJ", "Volta Redonda", 30, -22.5202, -44.0996], ["RN", "Natal", 31, -5.7945, -35.211], ["RN", "Mossoró", 34, -5.1878, -37.3441], ["RN", "Parnamirim", 31, -5.9156, -35.262], ["RN", "Caicó", 34, -6.4547, -37.1006], ["RS", "Porto Alegre", 31, -30.0346, -51.2177], ["RS", "Caxias do Sul", 26, -29.1634, -51.1797], ["RS", "Pelotas", 28, -31.7654, -52.3376], ["RS", "Santa Maria", 29, -29.6868, -53.8149], ["RO", "Porto Velho", 32, -8.7608, -63.8999], ["RO", "Ji-Paraná", 33, -10.8778, -61.932], ["RO", "Ariquemes", 33, -9.9133, -63.0408], ["RO", "Vilhena", 31, -12.7414, -60.1481], ["RR", "Boa Vista", 34, 2.8235, -60.6758], ["RR", "Rorainópolis", 34, 0.9481, -60.4197], ["RR", "Caracaraí", 35, 1.8069, -61.13], ["RR", "Pacaraima", 30, 4.4799, -61.1476], ["SC", "Florianópolis", 29, -27.5954, -48.548], ["SC", "Joinville", 29, -26.3045, -48.8487], ["SC", "Blumenau", 29, -26.9166, -49.0717], ["SC", "Chapecó", 28, -27.1004, -52.6152], ["SP", "São Paulo", 28.5, -23.5505, -46.6333], ["SP", "Campinas", 30, -22.9099, -47.0626], ["SP", "Santos", 29, -23.9608, -46.3336], ["SP", "Ribeirão Preto", 31, -21.1704, -47.8103], ["SE", "Aracaju", 30, -10.9472, -37.0731], ["SE", "Nossa Senhora do Socorro", 31, -10.855, -37.1261], ["SE", "Itabaiana", 31, -10.685, -37.4253], ["SE", "Lagarto", 31, -10.917, -37.65], ["TO", "Palmas", 34, -10.184, -48.3336], ["TO", "Araguaína", 35, -7.1914, -48.2072], ["TO", "Gurupi", 35, -11.7292, -49.0686], ["TO", "Porto Nacional", 35, -10.7081, -48.4173]];
+/* ===== LÓGICA DE CÁLCULO ===== */
+const C=CONFIG;
+function classe(t){return t>=33?'Muito quente':t>=31?'Quente':t>=29?'Moderadamente quente':'Ameno'}
+function calcular(s){
+ const L=[],A=s.c*s.l,m=s.modo,base=A*C.base[m];
+ L.push({t:'Carga base',d:`${A.toFixed(1)} m² × ${C.base[m]} BTU/m²`,v:base});
+ const sf=C.sol.intensidade[s.sol].f*C.sol.periodo[s.per].f;
+ L.push({t:'Incidência solar',d:`${C.sol.intensidade[s.sol].l} · ${C.sol.periodo[s.per].l} → fator ${sf.toFixed(2)}`,v:base*(sf-1)});
+ const pf=Math.min(1.5,Math.max(1,s.h/C.peDireitoRef));
+ L.push({t:'Pé-direito',d:`${s.h.toFixed(2)} m${s.hEst?' (estimada)':''} (ref. ${C.peDireitoRef} m) → fator ${pf.toFixed(2)}`,v:base*(pf-1)});
+ const cid=CIDADES[s.cidade],tempRef=Number.isFinite(S.tempRef)?S.tempRef:cid[2],cp=Math.min(s.ext?C.clima.maxPctExtremo:C.clima.maxPct,Math.max(0,(tempRef-C.clima.tRef)*C.clima.pctPorGrau));
+ L.push({t:'Temperatura da cidade',d:`${cid[1]}-${cid[0]}: temperatura de projeto ${tempRef.toFixed(1)} °C (ref. ${C.clima.tRef} °C) → +${(cp*100).toFixed(0)}%`,v:base*cp});
+ const ex=Math.max(0,s.p-C.pessoasInclusas[m]);
+ L.push({t:'Pessoas',d:`${s.p} pessoa(s), ${C.pessoasInclusas[m]} inclusa(s) na base → ${ex} × ${C.btuPorPessoa}`,v:ex*C.btuPorPessoa});
+ const ja=C.janelaM2[s.jt]*Math.min(s.js,s.jq);
+ L.push({t:'Janelas com sol direto',d:`${ja.toFixed(1)} m² × ${C.btuPorM2JanelaSol} BTU/m²`,v:ja*C.btuPorM2JanelaSol});
+ let eqs=[],ev=0;for(const k in s.eq){if(s.eq[k]>0){ev+=s.eq[k]*C.equipamentos[k].b;eqs.push(`${s.eq[k]}× ${C.equipamentos[k].l}`)}}
+ L.push({t:'Equipamentos',d:eqs.join(', ')||'Nenhum informado',v:ev});
+ let sub=L.reduce((a,x)=>a+x.v,0);
+ for(const k of s.oth){const o=C.outros[k];const v=o.pct?sub*o.pct[m]:o.btu;L.push({t:o.l,d:o.pct?`+${(o.pct[m]*100).toFixed(0)}% do subtotal`:'valor fixo',v})}
+ const total=L.reduce((a,x)=>a+x.v,0),marg=total*C.margemTecnica,need=total+marg;
+ return{L,A,total,marg,need,cid,ja,ev,rec:recomendar(need,total)}
+}
+/* Acima do maior aparelho: divide em N aparelhos iguais (2 a 6). Recomenda o de menor capacidade total;
+   se houver opção com menos aparelhos até 8% acima desse total, prefere a com menos aparelhos. */
+function planoMultiplo(need){
+ const caps=C.capacidadesBTU,opts=[];
+ for(let n=2;n<=6;n++){const c=caps.find(x=>x*n>=need);if(c)opts.push({n,cap:c,total:n*c,folga:(n*c-need)/need})}
+ if(!opts.length)return null;
+ const min=Math.min(...opts.map(o=>o.total)),best=opts.filter(o=>o.total<=min*1.08).sort((a,b)=>a.n-b.n)[0];
+ return{n:best.n,cap:best.cap,total:best.total,options:opts}
+}
+function recomendar(need,total){
+ const caps=C.capacidadesBTU,i=caps.findIndex(c=>c>=need),multi=i<0?planoMultiplo(need):null,idx=i<0?(multi?caps.indexOf(multi.cap):caps.length-1):i,cap=caps[idx];
+ return{idx,cap,multi,estouro:i<0,prox:!(i<0)&&(cap-need)/cap<C.alertaProximoLimite,margemEmpurrou:total<=cap&&need>cap&&false}
+}
+/* ===== ESTADO / UI ===== */
+const $=id=>document.getElementById(id),fm=n=>Math.round(n).toLocaleString('pt-BR');
+const ALT=[[2.6,'🏢','Apartamento','≈ 2,60 m'],[2.7,'🏠','Normal (casa, sala)','≈ 2,70 m · padrão'],[3.0,'⬆️','Teto alto','≈ 3,00 m'],[3.5,'🏛️','Pé-direito duplo','3,50 m ou mais']];
+const S={ap:null,rooms:[],hEst:true,modo:'residencial',sol:'pouco',per:'tarde',eq:{},oth:[],cidade:-1,tempRef:null,weather:null,proj:null,manual:null};let step=0;
+const NAMES=['Aparelho','Ambiente','Dimensões','Ocupação','Sol e clima','Equipamentos','Resultado'];
+function opt(el,items,get,cb){el.innerHTML='';items.forEach(([k,html])=>{const b=document.createElement('button');b.type='button';b.className='opt'+(get()===k?' sel':'');b.innerHTML=html;b.setAttribute('aria-pressed',get()===k);b.onclick=()=>{cb(k);opt(el,items,get,cb)};el.appendChild(b)})}
+function tipos(){$('tipo').innerHTML=C.tipos[S.modo].map(t=>`<option>${t}</option>`).join('')}
+function init(){
+ initAp();
+ opt($('fin'),[['residencial','<span class="e">🏠</span>Residencial'],['comercial','<span class="e">🏢</span>Comercial']],()=>S.modo,k=>{S.modo=k;tipos();refs()});tipos();
+ $('jt').innerHTML=Object.entries(C.tamanhosJanela).map(([k,v])=>`<option value="${k}" ${k=='media'?'selected':''}>${v}</option>`).join('');
+ opt($('sol'),Object.entries(C.sol.intensidade).map(([k,v])=>[k,`<span class="e">${v.e}</span>${v.l}`]),()=>S.sol,k=>S.sol=k);
+ opt($('per'),Object.entries(C.sol.periodo).map(([k,v])=>[k,v.l]),()=>S.per,k=>S.per=k);
+ const UFN={AC:'Acre',AL:'Alagoas',AP:'Amapá',AM:'Amazonas',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MT:'Mato Grosso',MS:'Mato Grosso do Sul',MG:'Minas Gerais',PA:'Pará',PB:'Paraíba',PR:'Paraná',PE:'Pernambuco',PI:'Piauí',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RS:'Rio Grande do Sul',RO:'Rondônia',RR:'Roraima',SC:'Santa Catarina',SP:'São Paulo',SE:'Sergipe',TO:'Tocantins'};
+ const ufs=[...new Set(CIDADES.map(c=>c[0]))].sort((a,b)=>(UFN[a]||a).localeCompare(UFN[b]||b,'pt-BR'));$('uf').innerHTML='<option value="">Selecione o estado…</option>'+ufs.map(u=>`<option value="${u}">${UFN[u]||u} (${u})</option>`).join('');
+ $('uf').onchange=()=>fillCid($('uf').value);fillCid('');
+ $('cid').onchange=()=>{S.cidade=$('cid').value===''?-1:+$('cid').value;S.proj=null;S.manual=null;S.tempRef=null;if(S.cidade>=0){$('geoMsg').textContent='';loadWeather(S.cidade)}else{S.weather=null;$('geoMsg').textContent='';renderWeatherEmpty();renderDesign()}};
+ $('ext').onchange=()=>{S.ext=$('ext').checked;updTemp();renderDesign()};
+ $('eqs').innerHTML=Object.entries(C.equipamentos).map(([k,v])=>`<div class="eq"><label for="q_${k}" style="margin:0;font-weight:400">${v.l}</label><input id="q_${k}" type="number" min="0" max="50" value="0" data-k="${k}"></div>`).join('');
+ $('oth').innerHTML=Object.entries(C.outros).map(([k,v])=>`<label class="chk"><input type="checkbox" data-o="${k}">${v.l}</label>`).join('');
+ ['c','l'].forEach(i=>$(i).oninput=()=>{const a=+$('c').value*+$('l').value;$('areaTx').textContent='Área: '+(a>0?a.toFixed(1).replace('.',','):'—')+' m²'});
+ $('stps').innerHTML=NAMES.map((n,i)=>`<span>${i+1}. ${n}</span>`).join('');
+ $('nsh').onclick=()=>{$('hbox').classList.toggle('hid')};$('h').oninput=()=>{S.hEst=false;drawAlt()};drawAlt();
+ $('geo').onclick=geo;$('next').onclick=next;$('prev').onclick=()=>show(step-1);
+ show(0)}
+function refs(){}
+function drawAlt(){const el=$('hopt');if(!el)return;const cur=+$('h').value;el.innerHTML='';
+ ALT.forEach(([v,e,t,d])=>{const b=document.createElement('button');b.type='button';const on=cur===v;b.className='opt'+(on?' sel':'');b.setAttribute('aria-pressed',on);
+  b.innerHTML=`<span class="e">${e}</span>${t}<br><small>${d}</small>`;b.onclick=()=>{$('h').value=v;S.hEst=true;drawAlt()};el.appendChild(b)});
+ $('hmsg').textContent=S.hEst?`Usaremos ${cur.toFixed(2).replace('.',',')} m como altura estimada.`:'Usaremos a medida informada.'}
+function fillCid(uf,sel){
+  const l=CIDADES.map((c,i)=>[c,i]).filter(([c])=>uf&&c[0]===uf).sort((a,b)=>a[0][1].localeCompare(b[0][1],'pt-BR'));
+  $('cid').disabled=!uf;
+  $('cid').innerHTML=`<option value="">${uf?'Selecione a cidade…':'Escolha o estado primeiro'}</option>`+l.map(([c,i])=>`<option value="${i}" ${i===sel?'selected':''}>${c[1]}</option>`).join('');
+  if(sel!=null&&sel>=0){$('cid').value=sel;loadWeather(sel)}else{S.cidade=-1;S.tempRef=null;S.weather=null;S.proj=null;S.manual=null;$('geoMsg').textContent='';renderWeatherEmpty();renderDesign()}
+}
+function weatherIcon(code,isDay=true){
+  if(code===0)return isDay?'☀️':'🌙';
+  if([1,2].includes(code))return '🌤️';
+  if(code===3)return '☁️';
+  if([45,48].includes(code))return '🌫️';
+  if([51,53,55,56,57].includes(code))return '🌦️';
+  if([61,63,65,66,67,80,81,82].includes(code))return '🌧️';
+  if([95,96,99].includes(code))return '⛈️';
+  return '🌡️';
+}
+function renderWeatherEmpty(){const b=$('weatherBox');if(b)b.innerHTML='<div class="weather-empty">Selecione uma cidade para carregar a temperatura em tempo real.</div>'}
+function renderWeatherLoading(name){
+  const b=$('weatherBox');if(!b)return;
+  b.classList.add('loading');b.innerHTML=`<div class="weather-empty">🌡️ Consultando temperatura atual de <b>${name}</b>…</div>`;
+}
+async function getJSON(url,ms=9000){
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),ms);
+  try{const r=await fetch(url,{cache:'no-store',signal:ctl.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
+  finally{clearTimeout(t)}
+}
+/* Fonte 1: Open-Meteo | Fonte 2 (reserva): wttr.in */
+async function fetchWeather(c){
+  const erros=[];
+  try{
+    const d=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${c[3]}&longitude=${c[4]}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day&daily=temperature_2m_min,temperature_2m_max&timezone=auto&forecast_days=1`);
+    const cur=d.current||{},day=d.daily||{};
+    const w={now:Number(cur.temperature_2m),min:Number(day.temperature_2m_min?.[0]),max:Number(day.temperature_2m_max?.[0]),feels:Number(cur.apparent_temperature),humidity:Number(cur.relative_humidity_2m),code:cur.weather_code,isDay:!!cur.is_day,updated:cur.time,source:'Open-Meteo'};
+    if(Number.isFinite(w.now)||Number.isFinite(w.max))return w;
+    throw new Error('resposta sem temperatura');
+  }catch(e){erros.push('Open-Meteo: '+(e.name==='AbortError'?'tempo esgotado':e.message))}
+  try{
+    const d=await getJSON(`https://wttr.in/${c[3]},${c[4]}?format=j1`);
+    const cc=d.current_condition?.[0]||{},dy=d.weather?.[0]||{};
+    const wc=+cc.weatherCode,code=wc===113?0:wc===116?2:[119,122].includes(wc)?3:[143,248,260].includes(wc)?45:(wc>=176&&wc<=359)?61:wc>=386?95:3;
+    const w={now:Number(cc.temp_C),min:Number(dy.mintempC),max:Number(dy.maxtempC),feels:Number(cc.FeelsLikeC),humidity:Number(cc.humidity),code,isDay:true,updated:null,source:'wttr.in'};
+    if(Number.isFinite(w.now)||Number.isFinite(w.max))return w;
+    throw new Error('resposta sem temperatura');
+  }catch(e){erros.push('wttr.in: '+(e.name==='AbortError'?'tempo esgotado':e.message))}
+  const err=new Error(erros.join(' | '));err.list=erros;throw err;
+}
+function useManualTemp(index){
+  const v=parseFloat(String($('mt').value).replace(',','.'));
+  if(!(v>=10&&v<=55)){$('mtm').textContent='Informe uma temperatura entre 10 e 55 °C.';return}
+  S.manual=v;updTemp();renderDesign();$('mtm').innerHTML=`✓ Usaremos <b>${v.toFixed(1).replace('.',',')} °C</b> como temperatura de projeto.`;
+}
+/* ===== TEMPERATURA DE PROJETO (o que entra no cálculo) =====
+   Não usa o clima de hoje. Usa os dias mais quentes do ano: percentil 95 das máximas diárias dos
+   últimos 5 anos (histórico Open-Meteo), nunca abaixo da referência cadastrada da cidade.
+   Com "dias extremos" marcado, usa a maior máxima registrada no período. */
+function updTemp(){
+  const c=CIDADES[S.cidade];if(!c){S.tempRef=null;return}
+  if(Number.isFinite(S.manual)){S.tempRef=S.manual;return}
+  const pr=S.proj;
+  if(pr&&Number.isFinite(pr.p95)){const base=$('ext')&&$('ext').checked&&Number.isFinite(pr.max)?pr.max:pr.p95;S.tempRef=Math.max(c[2],base)}
+  else S.tempRef=c[2]
+}
+function pct(arr,q){const a=arr.filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return NaN;const i=(a.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo)}
+async function loadDesign(index){
+  const c=CIDADES[index];if(!c)return;
+  S.proj=null;updTemp();renderDesign('loading');
+  try{
+    const y=new Date().getFullYear(),ini=`${y-5}-01-01`,fim=`${y-1}-12-31`;
+    const d=await getJSON(`https://archive-api.open-meteo.com/v1/archive?latitude=${c[3]}&longitude=${c[4]}&start_date=${ini}&end_date=${fim}&daily=temperature_2m_max&timezone=auto`,15000);
+    const v=(d.daily&&d.daily.temperature_2m_max||[]).map(Number);
+    const p95=pct(v,.95),max=Math.max(...v.filter(Number.isFinite));
+    if(!Number.isFinite(p95)||v.length<365)throw new Error('histórico incompleto');
+    if(S.cidade!==index)return;
+    S.proj={p95,max,anos:`${y-5}–${y-1}`};
+  }catch(e){if(S.cidade!==index)return;console.warn('Histórico indisponível:',e.message);S.proj=null}
+  updTemp();renderDesign();
+}
+function renderDesign(st){
+  const b=$('designBox');if(!b)return;const c=CIDADES[S.cidade];
+  if(!c){b.innerHTML='';b.style.display='none';return}
+  b.style.display='';const f=n=>Number.isFinite(n)?n.toFixed(1).replace('.',','):'—';
+  if(st==='loading'){b.innerHTML='<div class="weather-empty">📊 Calculando a temperatura de projeto (histórico dos últimos 5 anos)…</div>';return}
+  const hoje=S.weather&&Number.isFinite(S.weather.max)?` Hoje a máxima prevista é ${f(S.weather.max)} °C, mas <b>o cálculo não usa o clima de hoje</b>.`:'';
+  let t;
+  if(Number.isFinite(S.manual))t=`Temperatura de projeto informada manualmente: <b>${f(S.tempRef)} °C</b>.`;
+  else if(S.proj)t=`<b>Temperatura de projeto: ${f(S.tempRef)} °C</b> — ${$('ext')&&$('ext').checked?'maior máxima registrada no período':'percentil 95 das máximas diárias'} de ${c[1]} (${S.proj.anos}). Maior máxima no período: ${f(S.proj.max)} °C.`;
+  else t=`<b>Temperatura de projeto: ${f(S.tempRef)} °C</b> (referência cadastrada para ${c[1]}; histórico indisponível agora).`;
+  b.innerHTML=`<div class="weather-live" style="display:block"><div class="weather-main"><b>🔥 Temperatura de projeto usada no cálculo</b><small>${t}${hoje}</small></div></div>`;
+}
+async function loadWeather(index){
+  const c=CIDADES[index],box=$('weatherBox');if(!c||!box)return;
+  renderWeatherLoading(c[1]);loadDesign(index);
+  const fm1=n=>Number.isFinite(n)?n.toFixed(1).replace('.',','):'—';
+  try{
+    const w=await fetchWeather(c);
+    if(S.cidade!==index)return; /* usuário já trocou de cidade */
+    S.weather=w;
+    box.classList.remove('loading');
+    box.innerHTML=`<div class="weather-live">
+      <div class="weather-icon">${weatherIcon(w.code,w.isDay)}</div>
+      <div class="weather-main"><b>${fm1(w.now)} °C agora</b><small>Sensação ${fm1(w.feels)} °C · Umidade ${Number.isFinite(w.humidity)?Math.round(w.humidity):'—'}%</small></div>
+      <div class="weather-range"><b>${fm1(w.min)}–${fm1(w.max)} °C</b><small>mín. / máx. hoje</small></div>
+    </div><div class="weather-source"><span>Atualizado: ${w.updated?new Date(w.updated).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'agora'}</span><strong>Fonte: ${w.source}</strong></div>`;
+    renderDesign();
+  }catch(err){
+    if(S.cidade!==index)return;
+    console.warn('Clima indisponível:',err.message);
+    S.weather=null;box.classList.remove('loading');
+    const off=(typeof navigator!=='undefined'&&navigator.onLine===false);
+    box.innerHTML=`<div class="weather-error"><b>Não foi possível buscar o clima em tempo real.</b><br>${off?'O dispositivo parece estar sem internet.':'As duas fontes de clima não responderam. Isso costuma ocorrer quando a página é aberta em uma visualização embutida (pré-visualização, WhatsApp, e-mail) ou com bloqueador de anúncios/rede restrita. Abra o arquivo diretamente no Chrome ou Edge.'}<br>
+      <small style="opacity:.75">Detalhe técnico: ${err.message}</small>
+      <div style="margin-top:10px">O clima de hoje é só informativo. Se quiser, informe a <b>temperatura máxima típica de calor</b> da cidade para usar no cálculo:</div>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:center"><input id="mt" type="number" step="0.5" min="10" max="50" placeholder="ex.: 36" inputmode="decimal" style="max-width:120px"><button class="weather-refresh" type="button" onclick="useManualTemp(${index})">Usar</button><button class="weather-refresh" type="button" onclick="loadWeather(${index})">Tentar novamente</button></div><div class="small" id="mtm" style="margin-top:6px"></div></div>`;
+  }
+}
+function geo(){const m=$('geoMsg');if(!navigator.geolocation){m.textContent='Geolocalização indisponível. Escolha manualmente.';return}m.textContent='Localizando…';
+ navigator.geolocation.getCurrentPosition(p=>{let b=0,d=1e9;CIDADES.forEach((c,i)=>{const x=(c[3]-p.coords.latitude),y=(c[4]-p.coords.longitude)*Math.cos(c[3]*Math.PI/180),q=x*x+y*y;if(q<d){d=q;b=i}});S.cidade=b;$('uf').value=CIDADES[b][0];fillCid(CIDADES[b][0],b);$('cid').value=b;m.textContent=`Cidade mais próxima: ${CIDADES[b][1]}-${CIDADES[b][0]}. Atualizando clima em tempo real…`;loadWeather(b)},()=>m.textContent='Não foi possível obter a localização. Escolha manualmente.',{timeout:8000})}
+function show(n){step=Math.max(0,n);$('res').classList.add('hid');$('wiz').classList.remove('hid');
+ document.querySelectorAll('[data-s]').forEach(e=>e.classList.toggle('hid',+e.dataset.s!==step));
+ $('stl').textContent=`Etapa ${step+1} de 7`;$('stn').textContent=NAMES[step];$('pg').style.width=(step+1)/7*100+'%';
+ [...$('stps').children].forEach((e,i)=>e.classList.toggle('on',i===step));$('prev').style.visibility=step?'visible':'hidden';
+ $('next').textContent=step===5?'Calcular ✓':'Continuar →';$('err').textContent='';window.scrollTo({top:0,behavior:'smooth'})}
+function read(){S.ext=$('ext').checked;S.c=+$('c').value;S.l=+$('l').value;S.h=+$('h').value;S.p=Math.max(1,+$('p').value||1);S.jq=+$('jq').value||0;S.js=+$('js').value||0;S.jt=$('jt').value;S.tipo=$('tipo').value;
+ document.querySelectorAll('[data-k]').forEach(i=>S.eq[i.dataset.k]=Math.max(0,+i.value||0));S.oth=[...document.querySelectorAll('[data-o]:checked')].map(i=>i.dataset.o)}
+function next(){read();const e=$('err');
+ if(step===0&&!S.ap){e.textContent='Escolha o tipo de aparelho para continuar.';return}
+ if(step===2&&!(S.c>0&&S.l>0&&S.h>=2&&S.h<=6)){e.textContent='Informe comprimento e largura maiores que zero e altura entre 2 e 6 m.';return}
+ if(step===4&&S.cidade<0){e.textContent='Selecione a cidade (ou use sua localização).';return}
+ if(step===5){S.ap==='multisplit'?multiAdd():resultado();return}show(step+1)}
+function anim(el,to,ms=1100){const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/ms);el.textContent=fm(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0)}
+function svgAr(){return`<svg class="rs" viewBox="0 0 380 210" role="img" aria-label="Ilustração de um ambiente sendo resfriado por um ar-condicionado split"><defs>
+<linearGradient id="rsW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9bd"/><stop offset="1" stop-color="#fff1e2"/></linearGradient>
+<radialGradient id="rsC" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#a9dcff"/><stop offset=".75" stop-color="#d4eeff"/><stop offset="1" stop-color="#e9f6ff"/></radialGradient>
+<clipPath id="rsK"><rect x="10" y="10" width="360" height="190" rx="22"/></clipPath></defs>
+<rect x="10" y="10" width="360" height="190" rx="22" fill="url(#rsW)"/>
+<g clip-path="url(#rsK)"><circle class="rs-cool" cx="190" cy="56" r="320" fill="url(#rsC)"/><rect x="10" y="166" width="360" height="40" fill="#1e3c78" opacity=".09"/></g>
+<rect x="10" y="10" width="360" height="190" rx="22" fill="none" stroke="#1e3c78" stroke-opacity=".22" stroke-width="1.5"/>
+<rect x="30" y="52" width="62" height="74" rx="8" fill="#fff" stroke="#9fb4d6" stroke-width="2"/><path d="M61 52v74M30 89h62" stroke="#9fb4d6" stroke-width="1.5"/>
+<g transform="translate(46 70)"><circle class="rs-sun" r="9" fill="#ffb02e"/><g class="rs-rays" stroke="#ffb02e" stroke-width="2" stroke-linecap="round"><path d="M0 -20V-27" transform="rotate(0)"/><path d="M0 -20V-27" transform="rotate(45)"/><path d="M0 -20V-27" transform="rotate(90)"/><path d="M0 -20V-27" transform="rotate(135)"/><path d="M0 -20V-27" transform="rotate(180)"/><path d="M0 -20V-27" transform="rotate(225)"/><path d="M0 -20V-27" transform="rotate(270)"/><path d="M0 -20V-27" transform="rotate(315)"/></g></g>
+<g class="rs-air"><path class="rs-a" style="animation-delay:0.90s" d="M128 68C128 92 109 110 60 150"/><path class="rs-a" style="animation-delay:1.02s" d="M154 68C154 92 143 110 114 150"/><path class="rs-a" style="animation-delay:1.14s" d="M190 68C190 92 190 110 190 150"/><path class="rs-a" style="animation-delay:1.26s" d="M226 68C226 92 237 110 266 150"/><path class="rs-a" style="animation-delay:1.38s" d="M252 68C252 92 271 110 320 150"/></g><g><text class="rs-f" x="140" y="76" style="--dx:-25px;animation-delay:1.4s">❄</text><text class="rs-f" x="170" y="76" style="--dx:-10px;animation-delay:2.3s">❄</text><text class="rs-f" x="214" y="76" style="--dx:12px;animation-delay:3.2s">❄</text><text class="rs-f" x="244" y="76" style="--dx:27px;animation-delay:4.1s">❄</text></g>
+<rect x="108" y="24" width="164" height="40" rx="14" fill="#fff" stroke="#8fb9e6" stroke-width="1.8"/>
+<path d="M124 36h70M124 43h70M124 50h70" stroke="#c4d3ea" stroke-width="2.4" stroke-linecap="round"/>
+<rect x="212" y="32" width="50" height="22" rx="7" fill="#06142b"/>
+<text class="rs-t0" x="237" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="500" fill="#ff8a6a">32°</text>
+<text class="rs-t1" x="237" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="500" fill="#7be0ff">23°</text>
+<circle class="rs-led" cx="200" cy="52" r="2.6" fill="#1fcf8f"/>
+<rect class="rs-flap" x="116" y="62" width="148" height="7" rx="3.5" fill="#c99a2e"/>
+<rect x="132" y="128" width="116" height="34" rx="12" fill="#6f89b8"/><rect x="140" y="106" width="100" height="40" rx="14" fill="#869fca"/><rect x="124" y="120" width="22" height="42" rx="10" fill="#5f7aab"/><rect x="234" y="120" width="22" height="42" rx="10" fill="#5f7aab"/>
+<path d="M44 168h24l-3 -22h-18z" fill="#c99a2e"/><g fill="#2fb67c"><ellipse cx="56" cy="136" rx="6" ry="16" transform="rotate(-24 56 146)"/><ellipse cx="56" cy="134" rx="6" ry="18"/><ellipse cx="56" cy="136" rx="6" ry="16" transform="rotate(24 56 146)"/></g>
+<rect x="312" y="56" width="12" height="82" rx="6" fill="#fff" stroke="#9fb4d6" stroke-width="1.6"/><circle cx="318" cy="146" r="11" fill="#fff" stroke="#9fb4d6" stroke-width="1.6"/>
+<circle class="rs-bulb" cx="318" cy="146" r="7"/><rect class="rs-hg" x="315" y="60" width="6" height="82" rx="3"/>
+</svg>`}
+function resultado(){
+ const r=calcular(S),R=r.rec,cap=R.cap,mp=R.multi;const T=C.capacidadesBTU;const capTxt=mp?`${mp.n} × ${fm(cap)}`:fm(cap),semPlano=R.estouro&&!mp;
+ const al=[];
+ if(R.estouro&&mp)al.push(['',`A necessidade estimada (${fm(r.need)} BTUs com margem) é maior que o maior aparelho cadastrado (${fm(T[T.length-1])} BTUs). Recomendamos dividir em <b>${mp.n} aparelhos de ${fm(cap)} BTUs</b> (total ${fm(mp.total)} BTUs). Distribua as unidades pelo ambiente ou por zonas; isso também dá redundância: se um aparelho parar, os outros continuam refrigerando.`]);
+ else if(R.estouro)al.push(['er','Carga acima do que pode ser atendido por até 6 aparelhos cadastrados. Esse porte exige projeto técnico de climatização (ex.: sistema VRF ou chiller).']);
+ else if(R.prox)al.push(['',`O resultado está próximo do limite de ${fm(cap)} BTUs${T[R.idx+1]?` (próxima: ${fm(T[R.idx+1])})`:''}. Considere as condições reais do ambiente antes da compra.`]);
+ if(!R.estouro&&R.idx>0&&r.total<=T[R.idx-1]&&r.need>T[R.idx-1])al.push(['',`A carga (${fm(r.total)}) cabe em ${fm(T[R.idx-1])} BTUs, mas a margem técnica de ${(C.margemTecnica*100)}% a ultrapassa. Se o ambiente for bem isolado, avalie a capacidade menor.`]);
+ if(r.L[1].v+r.L[6].v>r.L[0].v*.3||r.total>r.L[0].v*1.6)al.push(['','A incidência solar, pessoas e equipamentos aumentaram significativamente a carga térmica.']);
+ if(S.modo==='comercial')al.push(['','Por se tratar de um ambiente comercial, a circulação de pessoas e equipamentos foi considerada no cálculo.']);
+ if(!al.length||(!R.prox&&!R.estouro))al.push(['ok',`${fm(cap)} BTUs é adequado para o ambiente informado.`]);
+ if(!R.estouro&&R.idx>0&&r.need>T[R.idx-1]&&r.need<T[R.idx-1]*1.15)al.unshift(['',`A necessidade estimada ultrapassa a capacidade de ${fm(T[R.idx-1])} BTUs. Por isso, a recomendação comercial é ${fm(cap)} BTUs.`]);
+ if(S.hEst&&S.h>C.peDireitoRef)al.push(['',`O pé-direito foi estimado em ${S.h.toFixed(2).replace('.',',')} m. Se possível, meça a altura real do teto para um resultado mais preciso.`]);
+ const AP=C.aparelhos[S.ap],mx=T[T.length-1];
+ if(S.ap==='hiwall'){if(R.estouro||r.need>mx)al.push(['','O Hi-wall costuma ir até '+fm(mx)+' BTUs. Para cargas maiores, <b>piso-teto</b> ou <b>cassete</b> são mais indicados; volte e troque o tipo se preferir.']);if(r.A>AP.area)al.push(['','Em ambientes acima de ~'+AP.area+' m², o jato de um único Hi-wall pode não cobrir todo o espaço. Avalie dois aparelhos ou piso-teto/cassete.']);al.push(['','Hi-wall: instale em parede livre, com espaço acima e à frente do aparelho para a circulação de ar.'])}
+ if(S.ap==='pisoteto')al.push(['','Piso-teto: indicado para ambientes amplos, alongados ou comerciais. Precisa de parede ou teto livre e espaço para o retorno de ar.']);
+ if(S.ap==='cassete')al.push(['','Cassete: exige forro rebaixado com vão livre suficiente (consulte o fabricante) e ponto de dreno. Distribua bem para o ar alcançar todo o ambiente.']);
+ const tp=C.clima.tRef,cid=r.cid;
+ $('res').innerHTML=`
+ <div class="card hero result-reveal"><div class="k">Resultado do dimensionamento</div><div><span class="big" id="calc">0</span> <span>BTU/h de carga estimada</span></div>
+ ${svgAr()}<div class="k">${mp?'Recomendação: dividir em vários aparelhos':semPlano?'Carga muito alta':'Ar-condicionado '+C.aparelhos[S.ap].l+' recomendado'}</div>${semPlano?`<div class="big" style="font-size:1.7rem">Requer projeto técnico</div><div>Acima de 6 aparelhos de ${fm(cap)} BTUs. Procure um projetista de climatização.</div>`:`<div class="big">${mp?`<span>${mp.n} × </span>`:''}<span id="rc">0</span><small style="font-size:1.1rem"> BTUs</small></div><div>${mp?`${mp.n} aparelhos de ${fm(cap)} BTUs cada · total de ${fm(mp.total)} BTUs`:'Capacidade comercial recomendada para este ambiente'}</div>`}
+ <div class="chips"><span>✓ ${C.aparelhos[S.ap].l}</span><span>✓ Área ${r.A.toFixed(1)} m²</span><span>✓ ${S.p} pessoa(s)</span><span>✓ Sol: ${C.sol.intensidade[S.sol].l}</span><span>✓ ${cid[1]} ${Number.isFinite(S.tempRef)?S.tempRef.toFixed(1):cid[2]} °C</span><span>✓ ${Object.values(S.eq).reduce((a,b)=>a+b,0)} equipamento(s)</span></div>
+ <button class="btn" style="background:linear-gradient(135deg,#f0d980,#c9a227);color:#04183a" id="vb" type="button">Ver como o cálculo foi feito</button></div>
+ <div class="card result-reveal delay1"><h2>Alertas</h2>${al.map(a=>`<div class="al ${a[0]}">${a[1]}</div>`).join('')}</div>
+ <div class="card hid" id="det"><h2>Como chegamos ao resultado?</h2>${r.L.filter(x=>Math.abs(x.v)>=1||x.t==='Carga base').map(x=>`<div class="ln"><span>${x.t}<small>${x.d}</small></span><b>+${fm(x.v)}</b></div>`).join('')}
+ <div class="ln tot"><span>Carga térmica estimada</span><b>${fm(r.total)} BTUs</b></div>
+ <div class="ln"><span>Margem técnica<small>${(C.margemTecnica*100)}% (conservadora)</small></span><b>+${fm(r.marg)}</b></div>
+ <div class="ln tot"><span>Necessidade com margem</span><b>${fm(r.need)} BTUs</b></div>
+ <div class="ln tot"><span>Resultado final (capacidade comercial)</span><b>${semPlano?'Requer projeto técnico':capTxt+' BTUs'}</b></div></div>
+ <div class="card result-reveal delay2"><h2>Comparação de capacidades</h2><p class="small">Necessidade: <b>${fm(r.need)} BTUs</b></p>
+ ${mp?`<p class="small">Nenhum aparelho individual atende sozinho (máximo cadastrado: ${fm(T[T.length-1])} BTUs). Opções dividindo a carga:</p>`+mp.options.map(o=>`<div class="cap mp ${o.n===mp.n?'rec':''}"><span>${o.n} × ${fm(o.cap)}</span><div class="bar"><i data-w="${Math.min(100,r.need/o.total*100)}"></i></div><span>${o.n===mp.n?'✓ recomendado':'total '+fm(o.total)}</span></div>`).join(''):T.map((c,i)=>{const st=i<R.idx?(c<r.total?'insuficiente':'abaixo da necessidade'):i===R.idx?'recomendado':'acima da necessidade';return`<div class="cap ${i===R.idx?'rec':''}"><span>${fm(c)}</span><div class="bar"><i data-w="${Math.min(100,r.need/c*100)}"></i></div><span>${i===R.idx?'✓ ':''}${st}</span></div>`}).join('')}</div>
+ <div class="card result-reveal delay2 sales-card"><h2>🛒 Sugestão para atendimento</h2><div class="sales-grid"><div><span class="small">Capacidade para oferecer</span><strong>${semPlano?'Projeto técnico':capTxt+' BTUs'}</strong></div><div><span class="small">Tipo de solução</span><strong>${C.aparelhos[S.ap].l}</strong></div></div><p class="small">Use este resultado como referência para apresentar a capacidade ao cliente. O modelo final deve considerar tensão, ciclo, tecnologia, fabricante e disponibilidade.</p></div>
+ <div class="card result-reveal delay2"><h2>Influência do clima</h2><p><b>Cidade selecionada:</b> ${cid[1]} - ${cid[0]}<br><b>Temperatura de projeto usada no cálculo:</b> ${Number.isFinite(S.tempRef)?S.tempRef.toFixed(1).replace(".",","):cid[2]} °C<br><b>Clima de hoje (informativo):</b> ${S.weather&&Number.isFinite(S.weather.min)&&Number.isFinite(S.weather.max)?S.weather.min.toFixed(1).replace(".",",")+" a "+S.weather.max.toFixed(1).replace(".",",")+" °C":"indisponível"}<br><b>Classificação:</b> ${classe(Number.isFinite(S.tempRef)?S.tempRef:cid[2])}</p><p class="small">A temperatura de projeto representa uma condição de calor de referência da cidade. <b>A temperatura atual é exibida apenas como informação e não é usada diretamente no cálculo.</b>${S.proj?` Base: histórico de ${S.proj.anos}; maior máxima registrada: ${S.proj.max.toFixed(1).replace(".",",")} °C.`:" Base: referência cadastrada da cidade."}</p><p class="small"><b>Fonte meteorológica:</b> Open-Meteo.</p></div>
+ <div class="nav"><button class="btn s" id="nv" type="button">← Fazer novo cálculo</button><button class="btn" id="sh" type="button">Compartilhar resultado</button></div><div class="small" id="shm"></div>`;
+ $('wiz').classList.add('hid');$('res').classList.remove('hid');$('pg').style.width='100%';window.scrollTo({top:0,behavior:'smooth'});
+ anim($('calc'),r.total);if($('rc'))anim($('rc'),cap);
+ setTimeout(()=>document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'),80);
+ $('vb').onclick=()=>{$('det').classList.toggle('hid');$('det').scrollIntoView({behavior:'smooth'})};
+ $('nv').onclick=resetForm;
+ $('sh').onclick=()=>{try{gerarPDF(r,al,cid);$('shm').textContent='PDF gerado. Verifique a pasta de downloads.'}catch(e){$('shm').textContent='Não foi possível gerar o PDF neste navegador.'}};}
+/* ===== TIPO DE APARELHO ===== */
+function setAp(k){S.ap=k;C.capacidadesBTU=C.aparelhos[k].caps.slice();const c=C.capacidadesBTU,d=$('apd');d.style.display='block';$('err').textContent='';
+ d.innerHTML=k==='multisplit'?'<b>Multisplit:</b> você calcula cada ambiente e, ao final, recebe a condensadora e as evaporadoras ('+fm(c[0])+' a '+fm(c[c.length-1])+' BTUs cada).':'<b>'+C.aparelhos[k].l+':</b> capacidades consideradas de '+fm(c[0])+' a '+fm(c[c.length-1])+' BTUs.'}
+function initAp(){opt($('ap'),Object.entries(C.aparelhos).map(([k,v])=>[k,`<span class="e">${v.e}</span>${v.l}<br><small>${v.d}</small>`]),()=>S.ap,setAp);if(S.ap)setAp(S.ap);else $('apd').style.display='none'}
+/* ===== MULTISPLIT ===== */
+function evOf(r){return r.rec.estouro?C.capacidadesBTU[C.capacidadesBTU.length-1]:r.rec.cap}
+function multiAdd(){const r=calcular(S),n=S.rooms.filter(x=>x.tipo===S.tipo).length+1;S.rooms.push({nome:S.tipo+(n>1?' '+n:''),tipo:S.tipo,r});multiResumo()}
+function multiResumo(){const n=S.rooms.length;
+ $('res').innerHTML=`<div class="card result-reveal"><h2>Multisplit · ambientes calculados (${n})</h2>
+ ${S.rooms.map(x=>`<div class="ln"><span>${x.nome}<small>${x.r.A.toFixed(1).replace('.',',')} m² · necessidade ${fm(x.r.need)} BTUs</small></span><b>Evaporadora ${fm(evOf(x.r))}</b></div>`).join('')}
+ <p class="small" style="margin-top:12px">${n<2?'O multisplit precisa de pelo menos 2 ambientes. Adicione outro para continuar.':'Adicione mais ambientes ou finalize para ver a condensadora recomendada.'}</p>
+ <div class="nav"><button class="btn s" id="mAdd" type="button">+ Adicionar outro ambiente</button><button class="btn" id="mFin" type="button" ${n<2?'disabled style="opacity:.5;cursor:not-allowed"':''}>Finalizar multisplit →</button></div></div>`;
+ $('wiz').classList.add('hid');$('res').classList.remove('hid');$('pg').style.width='100%';window.scrollTo({top:0,behavior:'smooth'});
+ $('mAdd').onclick=()=>{S.eq={};S.oth=[];S.hEst=true;['c','l'].forEach(i=>$(i).value='');$('h').value='2.7';$('p').value='2';$('jq').value='1';$('js').value='0';$('areaTx').textContent='Área: — m²';
+  document.querySelectorAll('[data-k]').forEach(i=>i.value=0);document.querySelectorAll('[data-o]').forEach(i=>i.checked=false);drawAlt();show(1)};
+ if(n>=2)$('mFin').onclick=multiFinal}
+function multiTexto(d){return 'Multisplit - condensadora '+(d.cond?fm(d.cond)+' BTUs':'dividir em 2 sistemas')+'\n'+S.rooms.map((x,i)=>'• '+x.nome+': evaporadora '+fm(d.evs[i])+' BTUs (necessidade '+fm(x.r.need)+')').join('\n')+'\nCarga total estimada: '+fm(d.load)+' BTUs. Estimativa inicial; confirme com um técnico autorizado.'}
+function multiFinal(){
+ const M=C.multi,n=S.rooms.length,evs=S.rooms.map(x=>evOf(x.r)),sum=evs.reduce((a,b)=>a+b,0),load=S.rooms.reduce((a,x)=>a+x.r.total,0),mxE=Math.max(...evs),cid=S.rooms[0].r.cid;
+ const cond=M.cond.find(c=>c>=sum*M.simult&&c>=mxE&&M.maxEvap[c]>=n)||null,al=[],d={cond,evs,load};
+ S.rooms.forEach(x=>{if(x.r.rec.estouro)al.push(['er',x.nome+': a necessidade ('+fm(x.r.need)+' BTUs) passa da maior evaporadora ('+fm(evOf(x.r))+' BTUs). Atenda esse ambiente com um aparelho dedicado (Hi-wall, piso-teto ou cassete).'])});
+ if(!cond)al.push(['','Com '+n+' ambientes e '+fm(sum)+' BTUs em evaporadoras, a soma passa do que uma única condensadora atende. Divida em 2 sistemas multisplit.']);
+ else al.push(['ok','Condensadora de '+fm(cond)+' BTUs atende '+n+' evaporadoras (suporta até '+M.maxEvap[cond]+').']);
+ al.push(['','A condensadora foi calculada com fator de simultaneidade de '+Math.round(M.simult*100)+'% sobre a soma das evaporadoras. Confirme a combinação permitida na tabela do fabricante antes da compra.']);
+ al.push(['','Multisplit: as evaporadoras ficam ligadas à mesma condensadora por tubulação frigorífica; considere a distância e o desnível máximos do modelo.']);
+ const chips=`<span>✓ Multisplit</span><span>✓ ${n} ambientes</span><span>✓ ${cid[1]}</span>`;
+ $('res').innerHTML=`<div class="card hero result-reveal"><div class="k">Multisplit · resultado</div><div><span class="big" id="calc">0</span> <span>BTU/h de carga total estimada</span></div>${svgAr()}<div class="k">Condensadora recomendada</div>${cond?`<div class="big"><span id="rc">0</span><small style="font-size:1.1rem"> BTUs</small></div><div>${n} evaporadoras · ${fm(sum)} BTUs somadas</div>`:`<div class="big" style="font-size:1.7rem">Dividir em 2 sistemas</div>`}<div class="chips">${chips}</div></div>
+ <div class="card result-reveal delay1"><h2>Evaporadoras por ambiente</h2>${S.rooms.map((x,i)=>`<div class="ln"><span>${x.nome}<small>${x.r.A.toFixed(1).replace('.',',')} m² · necessidade ${fm(x.r.need)} BTUs</small></span><b>${fm(evs[i])} BTUs</b></div>`).join('')}<div class="ln tot"><span>Soma das evaporadoras</span><b>${fm(sum)} BTUs</b></div></div>
+ <div class="card result-reveal delay1"><h2>Alertas</h2>${al.map(a=>`<div class="al ${a[0]}">${a[1]}</div>`).join('')}</div>
+ <div class="card result-reveal delay2 sales-card"><h2>🛒 Sugestão para atendimento</h2><div class="sales-grid"><div><span class="small">Condensadora</span><strong>${cond?fm(cond)+' BTUs':'2 sistemas'}</strong></div><div><span class="small">Evaporadoras</span><strong>${evs.map(fm).join(' + ')}</strong></div></div><p class="small">Referência para apresentar ao cliente. O modelo final deve considerar tensão, ciclo, tecnologia, fabricante e combinações permitidas.</p></div>
+ <div class="nav"><button class="btn s" id="nv" type="button">← Fazer novo cálculo</button><button class="btn" id="sh" type="button">Copiar resumo</button></div><div class="small" id="shm"></div>`;
+ window.scrollTo({top:0,behavior:'smooth'});anim($('calc'),load);if($('rc'))anim($('rc'),cond);
+ $('nv').onclick=resetForm;
+ $('sh').onclick=async()=>{const t=multiTexto(d);try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);$('shm').textContent='Resumo copiado.'}}catch(e){$('shm').textContent='Não foi possível compartilhar neste navegador.'}}}
+/* ===== NOVO CÁLCULO: limpa o formulário e volta à etapa 1 ===== */
+function resetForm(){
+ Object.assign(S,{ap:null,rooms:[],hEst:true,modo:'residencial',sol:'pouco',per:'tarde',eq:{},oth:[],cidade:-1,tempRef:null,weather:null,proj:null,manual:null});
+ $('c').value='';$('l').value='';$('h').value='2.7';$('p').value='2';$('jq').value='1';$('js').value='0';
+ $('ext').checked=false;$('areaTx').textContent='Área: — m²';$('hbox').classList.add('hid');$('geoMsg').textContent='';
+ init()}
+/* ===== PDF gerado no próprio navegador (sem bibliotecas externas) ===== */
+const HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const PW=595,PH=842,PM=40;
+const PC={navy:'0.016 0.094 0.227',gold:'0.902 0.78 0.38',cream:'0.965 0.941 0.863',ink:'0.039 0.114 0.212',mu:'0.365 0.416 0.486',ln:'0.88 0.86 0.80',goldd:'0.604 0.463 0.071',ok:'0.06 0.54 0.37',er:'0.75 0.22 0.17',bar:'0.90 0.91 0.93',warn:'0.99 0.965 0.875',slate:'0.55 0.62 0.72'};
+function pdfEnc(t){return String(t).replace(/\u2013/g,'\x96').replace(/\u2014/g,'\x97').replace(/[\u2018\u2019]/g,'\x92').replace(/[\u201C\u201D]/g,'\x94').replace(/\u2022/g,'\x95').replace(/\u2192/g,'->').replace(/\u2264/g,'<=').replace(/\u2248/g,'~').replace(/[\u202F\u00A0]/g,' ').replace(/[^\x00-\xFF]/g,'?')}
+function pdfW(t,sz,b){let w=0;for(const ch of t){const c=ch.charCodeAt(0);let v;if(c>=32&&c<=126)v=HW[c-32];else{const bs=ch.normalize('NFD').charCodeAt(0);v=(bs>=32&&bs<=126)?HW[bs-32]:556}w+=v}return w*sz/1000*(b?1.07:1)}
+function pdfWrap(t,sz,mw,b){const out=[];let cur='';pdfEnc(t).split(' ').forEach(w=>{const tr=cur?cur+' '+w:w;if(cur&&pdfW(tr,sz,b)>mw){out.push(cur);cur=w}else cur=tr});if(cur)out.push(cur);return out}
+function gerarPDF(r,al,cid){
+ const pages=[];let cs,y;const bw=PW-2*PM,cap=r.rec.cap,mp=r.rec.multi,capTxt=mp?mp.n+' x '+fm(cap):fm(cap),semPlano=r.rec.estouro&&!mp,capFull=semPlano?'Projeto tecnico':capTxt+' BTUs';
+ const np=()=>{cs=[];pages.push(cs);y=PM};
+ const T=(x,yy,s,sz,col,b,a)=>{s=pdfEnc(s);const xx=a==='r'?x-pdfW(s,sz,b):x;cs.push(`BT /${b?'F2':'F1'} ${sz} Tf ${PC[col]} rg ${xx.toFixed(2)} ${(PH-yy).toFixed(2)} Td (${s.replace(/[\\()]/g,'\\$&')}) Tj ET`)};
+ const R=(x,yy,w,h,col)=>cs.push(`${PC[col]} rg ${x.toFixed(2)} ${(PH-yy-h).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+ const Ln=(x1,yy,x2,col,wd)=>cs.push(`${PC[col]} RG ${wd||.6} w ${x1} ${(PH-yy).toFixed(2)} m ${x2} ${(PH-yy).toFixed(2)} l S`);
+ const ens=h=>{if(y+h>PH-70)np()};
+ const H=t=>{ens(60);T(PM,y+12,t,13,'navy',true);Ln(PM,y+20,PW-PM,'gold',1.2);y+=34};
+ np();
+ /* cabeçalho */
+ R(0,0,PW,104,'navy');R(0,104,PW,3,'gold');
+ T(PM,48,'Dimensionamento de ar-condicionado',20,'gold',true);
+ T(PM,70,'Relatório do resultado',10.5,'cream');
+ T(PW-PM,70,'Gerado em '+new Date().toLocaleString('pt-BR'),9,'cream',false,'r');
+ y=128;
+ /* resultado */
+ R(PM,y,bw,118,'navy');R(PM,y,bw,3,'gold');
+ const c1=PM+22,c2=PM+bw/2+22;
+ T(c1,y+34,'Carga térmica calculada',9.5,'gold',true);T(c1,y+72,fm(r.total)+' BTUs',27,'cream',true);
+ T(c2,y+34,'Capacidade recomendada',9.5,'gold',true);T(c2,y+72,capFull,mp||semPlano?22:27,'gold',true);
+ T(c1,y+98,'Valor estimado antes da margem técnica',8.5,'cream');
+ T(c2,y+98,mp?mp.n+' aparelhos - total de '+fm(mp.total)+' BTUs':'Capacidade comercial para este ambiente',8.5,'cream');
+ cs.push(`${PC.gold} RG .5 w ${PM+bw/2} ${PH-(y+22)} m ${PM+bw/2} ${PH-(y+100)} l S`);
+ y+=118+16;
+ const ob=pdfWrap('Este resultado é um cálculo aproximado, feito apenas para um dimensionamento inicial. Informações precisas devem ser fornecidas por um técnico autorizado, que avaliará o local e fará o cálculo detalhado de carga térmica antes da escolha e da instalação do equipamento.',9.5,bw-34,false);
+ const oh=ob.length*13+36;R(PM,y,bw,oh,'warn');R(PM,y,4,oh,'gold');
+ T(PM+16,y+17,'Observação importante',10.5,'goldd',true);ob.forEach((t,k)=>T(PM+16,y+33+k*13,t,9.5,'ink'));
+ y+=oh+22;
+ /* dados informados */
+ H('Dados informados');
+ const eqs=Object.entries(S.eq).filter(([k,v])=>v>0).map(([k,v])=>v+'x '+C.equipamentos[k].l).join(', ')||'Nenhum';
+ const it=[['Tipo de aparelho',C.aparelhos[S.ap].l],['Tipo de ambiente',(S.modo==='residencial'?'Residencial':'Comercial')+' · '+S.tipo],
+  ['Área',r.A.toFixed(1).replace('.',',')+' m² ('+String(S.c).replace('.',',')+' x '+String(S.l).replace('.',',')+' m)'],
+  ['Pé-direito',S.h.toFixed(2).replace('.',',')+' m'+(S.hEst?' (estimado)':'')],
+  ['Pessoas',String(S.p)],
+  ['Janelas',S.jq+' janela(s), tamanho '+C.tamanhosJanela[S.jt].split(' (')[0].toLowerCase()+'; '+Math.min(S.js,S.jq)+' com sol direto'],
+  ['Incidência de sol',C.sol.intensidade[S.sol].l+' · '+C.sol.periodo[S.per].l],
+  ['Cidade',cid[1]+'-'+cid[0]+' · '+(Number.isFinite(S.tempRef)?S.tempRef:cid[2]).toFixed(1).replace('.',',')+' °C'],
+  ['Equipamentos',eqs],
+  ['Outros fatores',S.oth.map(k=>C.outros[k].l).join(', ')||'Nenhum']];
+ const cw=(bw-24)/2;
+ for(let i=0;i<it.length;i+=2){const a=it[i],b2=it[i+1];const la=pdfWrap(a[1],10.5,cw,true),lb=b2?pdfWrap(b2[1],10.5,cw,true):[];const h=22+Math.max(la.length,lb.length)*13+8;ens(h);
+  T(PM,y+10,a[0],8.5,'mu');la.forEach((t,k)=>T(PM,y+24+k*13,t,10.5,'ink',true));
+  if(b2){T(PM+cw+24,y+10,b2[0],8.5,'mu');lb.forEach((t,k)=>T(PM+cw+24,y+24+k*13,t,10.5,'ink',true))}
+  y+=h}
+ y+=6;
+ /* como chegamos ao resultado */
+ H('Como chegamos ao resultado');
+ r.L.filter(x=>Math.abs(x.v)>=1||x.t==='Carga base').forEach(x=>{const dl=pdfWrap(x.d,8.5,bw-130,false);const h=20+dl.length*11+8;ens(h);
+  T(PM,y+12,x.t,10.5,'ink',true);T(PW-PM,y+12,'+'+fm(x.v),10.5,'ink',true,'r');dl.forEach((t,k)=>T(PM,y+25+k*11,t,8.5,'mu'));y+=h;Ln(PM,y-3,PW-PM,'ln',.5)});
+ const tot=(a,b2,hi)=>{ens(36);if(hi){R(PM,y+2,bw,26,'navy');T(PM+12,y+19,a,11,'gold',true);T(PW-PM-12,y+19,b2,11,'gold',true,'r')}else{T(PM,y+17,a,10.5,'ink',true);T(PW-PM,y+17,b2,10.5,'ink',true,'r');Ln(PM,y+24,PW-PM,'ln',.5)}y+=hi?34:28};
+ tot('Carga térmica estimada',fm(r.total)+' BTUs');
+ tot('Margem técnica ('+(C.margemTecnica*100)+'%)','+'+fm(r.marg));
+ tot('Necessidade com margem',fm(r.need)+' BTUs');
+ tot('Resultado final (capacidade comercial)',capFull,true);
+ y+=10;
+ /* comparação de capacidades */
+ H('Comparação de capacidades');
+ T(PM,y+4,'Necessidade estimada: '+fm(r.need)+' BTUs',9,'mu');y+=16;
+ const RC=r.rec;
+ const rows=mp?mp.options.map(o=>({lab:o.n+' x '+fm(o.cap),c:o.total,rec:o.n===mp.n,st:o.n===mp.n?'recomendado':'total '+fm(o.total)})):C.capacidadesBTU.map((c,i)=>({lab:fm(c),c,rec:i===RC.idx,st:i<RC.idx?(c<r.total?'insuficiente':'abaixo da necessidade'):i===RC.idx?'recomendado':'acima da necessidade'}));
+ if(mp){T(PM,y+4,'Nenhum aparelho individual atende sozinho (maximo: '+fm(C.capacidadesBTU[C.capacidadesBTU.length-1])+' BTUs). Opcoes dividindo a carga:',9,'mu');y+=16}
+ rows.forEach(o=>{ens(22);const rec=o.rec;
+  T(PM,y+11,o.lab,9.5,rec?'goldd':'ink',rec);R(PM+70,y+4,200,8,'bar');R(PM+70,y+4,200*Math.min(1,r.need/o.c),8,rec?'gold':'slate');T(PM+285,y+11,o.st,9,rec?'goldd':'mu',rec);y+=20});
+ y+=10;
+ /* alertas */
+ H('Alertas');
+ al.forEach(a=>{const L=pdfWrap(a[1],9.5,bw-24,false);const h=L.length*13+14;ens(h);R(PM,y,3,h-6,a[0]==='ok'?'ok':a[0]==='er'?'er':'gold');L.forEach((t,k)=>T(PM+12,y+11+k*13,t,9.5,'ink'));y+=h});
+ /* rodapé em todas as páginas */
+ const disc='Este cálculo é uma estimativa para dimensionamento inicial. O resultado pode variar conforme características construtivas, orientação solar, isolamento térmico, equipamentos, ventilação, ocupação e condições climáticas. Valores precisos devem ser fornecidos por um técnico autorizado.';
+ pages.forEach((p,i)=>{cs=p;Ln(PM,PH-58,PW-PM,'ln',.6);pdfWrap(disc,7.5,bw-80,false).forEach((t,k)=>T(PM,PH-46+k*10,t,7.5,'mu'));T(PW-PM,PH-46,'Página '+(i+1)+' de '+pages.length,8,'mu',false,'r')});
+ /* montagem do arquivo PDF */
+ const n=pages.length,objs=['<< /Type /Catalog /Pages 2 0 R >>',`<< /Type /Pages /Kids [${pages.map((_,i)=>(6+2*i)+' 0 R').join(' ')}] /Count ${n} >>`,
+  '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'];
+ pages.forEach((p,i)=>{const c=p.join('\n');objs.push(`<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+  objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${5+2*i} 0 R >>`)});
+ let pdf='%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';const off=[];
+ objs.forEach((o,i)=>{off.push(pdf.length);pdf+=`${i+1} 0 obj\n${o}\nendobj\n`});
+ const xr=pdf.length;
+ pdf+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+ const u=new Uint8Array(pdf.length);for(let i=0;i<pdf.length;i++)u[i]=pdf.charCodeAt(i)&255;
+ const url=URL.createObjectURL(new Blob([u],{type:'application/pdf'})),a=document.createElement('a');
+ a.href=url;a.download='dimensionamento-btus-'+(semPlano?'projeto-tecnico':mp?mp.n+'x'+cap:cap)+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
+
+document.addEventListener('pointermove',e=>{const b=e.target.closest('.btn,.opt');if(!b)return;const r=b.getBoundingClientRect();b.style.setProperty('--rx',((e.clientX-r.left)/r.width*100)+'%');b.style.setProperty('--ry',((e.clientY-r.top)/r.height*100)+'%')});
+init();
+</script>
+<script>
+(function(){
+ var t=document.getElementById('gr-tg'),p=document.getElementById('gr-lp');
+ if(t&&p)t.addEventListener('click',function(){var o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));p.classList.toggle('c',o)});
+ var b=document.getElementById('gr-cta');
+ if(b)b.addEventListener('click',function(){if(typeof show==='function')show(step)});
+ var els=document.querySelectorAll('.gr .rv');
+ if('IntersectionObserver' in window&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.documentElement.classList.add('js');
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  els.forEach(function(el){io.observe(el)});
+ }
+})();
+</script>
+<script>
+(function(){var w=document.getElementById('welcome');if(!w)return;
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,app=document.querySelector('.w'),root=document.documentElement;
+if(app)app.inert=true;root.style.overflow='hidden';
+var sn=w.querySelector('.wl-snow');if(!reduce)for(var i=0;i<16;i++){var e=document.createElement('span');e.textContent='\u2744';e.style.left=(Math.random()*96)+'%';e.style.fontSize=(10+Math.random()*16)+'px';e.style.animationDuration=(7+Math.random()*7)+'s';e.style.animationDelay=(-Math.random()*12)+'s';sn.appendChild(e)}
+var t=document.getElementById('wtemp'),v=30;t.textContent=(reduce?22:30)+'\u00b0';
+if(!reduce)setTimeout(function(){var iv=setInterval(function(){v--;t.textContent=v+'\u00b0';if(v<=22)clearInterval(iv)},280)},900);
+var go=document.getElementById('wgo');
+go.onclick=function(){w.classList.add('out');if(app)app.inert=false;root.style.overflow='';setTimeout(function(){w.remove();window.scrollTo(0,0)},520)};
+try{go.focus({preventScroll:true})}catch(_){}
+})();
+</script><script>document.addEventListener('pointermove',function(e){var c=e.target.closest&&e.target.closest('.card');if(!c)return;var r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')},{passive:true});</script></body></html>
